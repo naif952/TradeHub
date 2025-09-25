@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TradeHub - تسجيل الدخول</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #0a0a0f;
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Animated Background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.1;
+        }
+
+        .grid-line {
+            position: absolute;
+            background: linear-gradient(90deg, transparent, #6366f1, transparent);
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        .grid-line.horizontal {
+            width: 100%;
+            height: 1px;
+            animation-delay: var(--delay);
+        }
+
+        .grid-line.vertical {
+            height: 100%;
+            width: 1px;
+            animation-delay: var(--delay);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 0.1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Floating Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.8) 0%, transparent 70%);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        /* Main Container */
+        .auth-container {
+            position: relative;
+            width: 100%;
+            max-width: 450px;
+            margin: 2rem;
+            z-index: 10;
+        }
+
+        /* Auth Card */
+        .auth-card {
+            background: rgba(15, 15, 25, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 24px;
+            padding: 3rem 2.5rem;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(99, 102, 241, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #6366f1, transparent);
+            animation: shimmer 2s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        /* Header */
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .logo {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.3)); }
+            to { filter: drop-shadow(0 0 20px rgba(99, 102, 241, 0.6)); }
+        }
+
+        .auth-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #e2e8f0;
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-subtitle {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        /* Toggle Buttons */
+        .auth-toggle {
+            display: flex;
+            background: rgba(30, 30, 40, 0.8);
+            border-radius: 16px;
+            padding: 0.5rem;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .toggle-btn {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .toggle-btn.active {
+            color: white;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Form */
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-label {
+            display: block;
+            color: #e2e8f0;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(20, 20, 30, 0.8);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            color: white;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            background: rgba(25, 25, 35, 0.9);
+        }
+
+        .form-input::placeholder {
+            color: #64748b;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+        }
+
+        .form-input:focus + .input-icon {
+            color: #6366f1;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper .form-input {
+            padding-left: 3rem;
+            padding-right: 3rem;
+        }
+
+        /* Password Toggle */
+        .password-toggle {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: color 0.3s ease;
+            z-index: 10;
+        }
+
+        .password-toggle:hover {
+            color: #6366f1;
+        }
+
+        /* Submit Button */
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Divider */
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 2rem 0;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #64748b, transparent);
+        }
+
+        .divider span {
+            padding: 0 1rem;
+        }
+
+        /* Social Buttons */
+        .social-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
+
+        .social-btn {
+            background: rgba(30, 30, 40, 0.8);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 12px;
+            padding: 0.75rem 2rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            min-width: 150px;
+        }
+
+        .social-btn:hover {
+            background: rgba(40, 40, 50, 0.9);
+            border-color: #6366f1;
+            transform: translateY(-2px);
+        }
+
+        .social-btn.google {
+            color: #ea4335;
+        }
+
+        /* Footer Links */
+        .auth-footer {
+            text-align: center;
+            margin-top: 2rem;
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .auth-footer a {
+            color: #6366f1;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .auth-footer a:hover {
+            color: #a855f7;
+        }
+
+        /* Back to Home */
+        .back-home {
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            background: rgba(15, 15, 25, 0.8);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6366f1;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .back-home:hover {
+            background: rgba(99, 102, 241, 0.1);
+            transform: scale(1.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .auth-container {
+                margin: 1rem;
+                max-width: 100%;
+            }
+            
+            .auth-card {
+                padding: 1.5rem 1rem;
+            }
+            
+            .back-home {
+                top: 1rem;
+                right: 1rem;
+                width: 40px;
+                height: 40px;
+            }
+            .toggle-btn { padding: 0.6rem 0.75rem; font-size: 0.9rem; }
+            .form-input { padding: 0.9rem 1rem; }
+            .password-toggle { right: 0.75rem; }
+            .verify-content { padding: 1.25rem; }
+            .code-inputs input { width: 40px; height: 50px; }
+            .verify-actions { flex-direction: column; }
+            .btn { width: 100%; }
+        }
+
+        @media (max-width: 420px) {
+            .logo { font-size: 2rem; }
+            .auth-title { font-size: 1.25rem; }
+            .auth-subtitle { font-size: 0.85rem; }
+            .social-buttons { flex-direction: column; }
+            #gsi-warning { padding: 0 0.5rem; }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Success Animation */
+        .success-check {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #10b981;
+            border-radius: 50%;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .success-check::after {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 2px;
+            width: 6px;
+            height: 10px;
+            border: solid #10b981;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+
+        /* Email Verification Modal */
+        .verify-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            padding: 1rem;
+        }
+
+        .verify-modal.active { display: flex; }
+
+        .verify-content {
+            width: 100%;
+            max-width: 420px;
+            background: rgba(15, 15, 25, 0.95);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+            animation: fadeIn 0.35s ease-out;
+        }
+
+        .verify-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .verify-subtitle { color: #94a3b8; margin-bottom: 1.25rem; }
+
+        .code-inputs { display: flex; gap: 0.5rem; justify-content: center; direction: rtl; }
+
+        .code-inputs input {
+            width: 46px;
+            height: 56px;
+            text-align: center;
+            font-size: 1.25rem;
+            color: #e2e8f0;
+            background: rgba(20, 20, 30, 0.85);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            border-radius: 12px;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .code-inputs input:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+            background: rgba(25, 25, 35, 0.95);
+        }
+
+        .verify-actions { display: flex; gap: 0.75rem; margin-top: 1.25rem; }
+
+        .btn {
+            flex: 1;
+            padding: 0.8rem 1rem;
+            border-radius: 12px;
+            border: 0;
+            cursor: pointer;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .btn-primary { background: linear-gradient(135deg, #6366f1, #a855f7); }
+        .btn-ghost { background: rgba(30,30,40,0.8); border: 1px solid rgba(99,102,241,0.25); color: #e2e8f0; }
+        .btn[disabled] { opacity: 0.6; cursor: not-allowed; }
+    </style>
+    <script>
+        // رابط API اختياري (خادمك). اتركه فارغاً لاستخدام EmailJS فقط
+        const VERIFICATION_API_URL = '';
+    </script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script>
+        // EmailJS مفاتيح عامة (Frontend-safe)
+        const EMAILJS_PUBLIC_KEY = 'LySKQkp2abAPMNWwZ';
+        const EMAILJS_SERVICE_ID = 'service_6whal94';
+        const EMAILJS_TEMPLATE_ID = 'template_o9ja8nh';
+
+        // Google Client ID
+        const GOOGLE_CLIENT_ID = '670125122886-l70e2ol7u4l9j6jiuloe7o7nt270evl0.apps.googleusercontent.com';
+
+        if (window.emailjs && EMAILJS_PUBLIC_KEY) {
+            try { emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); } catch (_) {}
+        }
+        // Helper: persist logged-in user to localStorage for index/market pages
+        function setLoggedInUser(email, name) {
+            try {
+                const displayName = name && name.trim() ? name.trim() : (email ? (email.split('@')[0] || 'حسابي') : 'حسابي');
+                const user = { email: email || '', displayName };
+                localStorage.setItem('currentUser', JSON.stringify(user));
+            } catch (_) {}
+        }
+        // ============== Server APIs (secured) ==============
+        async function apiAccountExists(email) {
+            try {
+                const res = await fetch('/api/account_exists?email=' + encodeURIComponent(email), { cache: 'no-store' });
+                if (!res.ok) return false;
+                const data = await res.json();
+                return !!(data && data.exists);
+            } catch (_) { return false; }
+        }
+
+        async function apiSaveUser(email, pass, name='') {
+            try {
+                const res = await fetch('/api/storage', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, pass, name })
+                });
+                return res.ok;
+            } catch (_) { return false; }
+        }
+        async function apiLogin(email, pass) {
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, pass })
+                });
+                if (!res.ok) return false;
+                const data = await res.json();
+                return !!(data && data.ok);
+            } catch (_) { return false; }
+        }
+        async function apiRequestCode(email, code) {
+            try {
+                const res = await fetch('/api/request_code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, code })
+                });
+                return res.ok;
+            } catch (_) { return false; }
+        }
+        async function apiVerifyCode(email, code) {
+            try {
+                const res = await fetch('/api/verify_code', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, code })
+                });
+                if (!res.ok) return null;
+                return await res.json();
+            } catch (_) { return null; }
+        }
+        async function apiResetPassword(email, newPass, token) {
+            try {
+                const res = await fetch('/api/reset_password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, new_pass: newPass, token })
+                });
+                if (!res.ok) return false;
+                const data = await res.json();
+                return !!(data && data.ok);
+            } catch (_) { return false; }
+        }
+    </script>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-animation">
+        <div class="grid-line horizontal" style="top: 20%; --delay: 0s;"></div>
+        <div class="grid-line horizontal" style="top: 40%; --delay: 1s;"></div>
+        <div class="grid-line horizontal" style="top: 60%; --delay: 2s;"></div>
+        <div class="grid-line horizontal" style="top: 80%; --delay: 0.5s;"></div>
+        <div class="grid-line vertical" style="left: 20%; --delay: 1.5s;"></div>
+        <div class="grid-line vertical" style="left: 40%; --delay: 2.5s;"></div>
+        <div class="grid-line vertical" style="left: 60%; --delay: 0.8s;"></div>
+        <div class="grid-line vertical" style="left: 80%; --delay: 1.8s;"></div>
+    </div>
+
+    <!-- Floating Particles -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Back to Home -->
+    <a href="index.html" class="back-home" title="العودة للصفحة الرئيسية">
+        <i class="fas fa-home"></i>
+    </a>
+
+    <!-- Main Container -->
+    <div class="auth-container">
+        <div class="auth-card">
+            <!-- Header -->
+            <div class="auth-header">
+                <div class="logo">TradeHub</div>
+                <h1 class="auth-title" id="auth-title">مرحباً بك</h1>
+                <p class="auth-subtitle" id="auth-subtitle">سجل دخولك للوصول إلى حسابك</p>
+            </div>
+
+            <!-- Toggle Buttons -->
+            <div class="auth-toggle">
+                <button class="toggle-btn active" id="login-toggle" onclick="switchForm('login')">
+                    <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
+                </button>
+                <button class="toggle-btn" id="register-toggle" onclick="switchForm('register')">
+                    <i class="fas fa-user-plus"></i> إنشاء حساب
+                </button>
+            </div>
+
+            <!-- Login Form -->
+            <form class="auth-form active" id="login-form">
+                <div class="form-group">
+                    <label class="form-label">البريد الإلكتروني</label>
+                    <div class="input-wrapper">
+                        <input type="email" class="form-input" placeholder="أدخل بريدك الإلكتروني" required>
+                        <i class="fas fa-envelope input-icon"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">كلمة المرور</label>
+                    <div class="input-wrapper">
+                        <input type="password" class="form-input" id="login-password" placeholder="أدخل كلمة المرور" required minlength="8" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}" title="يجب أن تكون 8 أحرف على الأقل وتحتوي على حرف كبير وحرف صغير ورمز">
+                        <i class="fas fa-lock input-icon"></i>
+                        <button type="button" class="password-toggle" onclick="togglePassword('login-password')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top:-0.5rem;">
+                    <div style="display:flex;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;">
+                        <a href="#" id="forgot-password-link" style="color:#6366f1;text-decoration:none;font-size:0.9rem;">هل نسيت كلمة المرور؟</a>
+                        <a href="#" id="login-code-link" style="color:#6366f1;text-decoration:none;font-size:0.9rem;">تسجيل الدخول برمز عبر البريد</a>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <span class="btn-text">تسجيل الدخول</span>
+                    <div class="loading"></div>
+                </button>
+            </form>
+
+            <!-- Register Form -->
+            <form class="auth-form" id="register-form">
+                <div class="form-group">
+                    <label class="form-label">الاسم الوهمي</label>
+                    <div class="input-wrapper">
+                        <input id="register-name" type="text" class="form-input" placeholder="أدخل الاسم الوهمي " required maxlength="10" pattern="^[A-Za-z\u0600-\u06FF]{1,10}$" title="الاسم يجب أن يكون حروف فقط (عربي/إنجليزي) وبحد أقصى 10">
+                        <i class="fas fa-user input-icon"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">البريد الإلكتروني</label>
+                    <div class="input-wrapper">
+                        <input type="email" class="form-input" placeholder="أدخل بريدك الإلكتروني" required>
+                        <i class="fas fa-envelope input-icon"></i>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">كلمة المرور</label>
+                    <div class="input-wrapper">
+                        <input type="password" class="form-input" id="register-password" placeholder="أدخل كلمة المرور" required minlength="8" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}" title="يجب أن تكون 8 أحرف على الأقل وتحتوي على حرف كبير وحرف صغير ورمز">
+                        <i class="fas fa-lock input-icon"></i>
+                        <button type="button" class="password-toggle" onclick="togglePassword('register-password')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">تأكيد كلمة المرور</label>
+                    <div class="input-wrapper">
+                        <input type="password" class="form-input" id="confirm-password" placeholder="أعد إدخال كلمة المرور" required>
+                        <i class="fas fa-lock input-icon"></i>
+                        <button type="button" class="password-toggle" onclick="togglePassword('confirm-password')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <span class="btn-text">إنشاء حساب</span>
+                    <div class="loading"></div>
+                </button>
+            </form>
+
+            <!-- Divider -->
+            <div class="divider">
+                <span>أو</span>
+            </div>
+
+            <!-- Social Login -->
+            <div class="social-buttons">
+                <div id="gsi-button"></div>
+                <div id="gsi-warning" style="display:none;color:#f59e0b;font-size:0.9rem;text-align:center;line-height:1.5;max-width:320px;">
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="auth-footer">
+                <p id="auth-footer-text">
+                    ليس لديك حساب؟ <a href="#" onclick="switchForm('register')">إنشاء حساب جديد</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Email Verification Modal -->
+    <div class="verify-modal" id="verify-modal" role="dialog" aria-modal="true" aria-labelledby="verify-title">
+        <div class="verify-content">
+            <div class="verify-title" id="verify-title">تأكيد بريدك الإلكتروني</div>
+            <div class="verify-subtitle" id="verify-subtitle">أدخل رمز التحقق المكوّن من 6 أرقام الذي أرسلناه إلى بريدك.</div>
+            <div class="code-inputs" id="code-inputs">
+                <input inputmode="numeric" maxlength="1">
+                <input inputmode="numeric" maxlength="1">
+                <input inputmode="numeric" maxlength="1">
+                <input inputmode="numeric" maxlength="1">
+                <input inputmode="numeric" maxlength="1">
+                <input inputmode="numeric" maxlength="1">
+            </div>
+            <div class="verify-actions">
+                <button class="btn btn-ghost" type="button" id="resend-btn">إعادة الإرسال</button>
+                <button class="btn btn-primary" type="button" id="verify-btn">تأكيد</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Forgot Password: Email Modal -->
+    <div class="verify-modal" id="forgot-modal" role="dialog" aria-modal="true" aria-labelledby="forgot-title">
+        <div class="verify-content">
+            <div class="verify-title" id="forgot-title">استعادة كلمة المرور</div>
+            <div class="verify-subtitle">أدخل بريدك الإلكتروني المسجل لنرسل لك رمز التحقق.</div>
+            <div class="form-group" style="margin-top:1rem;">
+                <div class="input-wrapper">
+                    <input type="email" class="form-input" id="forgot-email" placeholder="example@gmail.com">
+                    <i class="fas fa-envelope input-icon"></i>
+                </div>
+            </div>
+            <div class="verify-actions">
+                <button class="btn btn-ghost" type="button" id="forgot-cancel">إلغاء</button>
+                <button class="btn btn-primary" type="button" id="forgot-send">إرسال الرمز</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div class="verify-modal" id="reset-modal" role="dialog" aria-modal="true" aria-labelledby="reset-title">
+        <div class="verify-content">
+            <div class="verify-title" id="reset-title">تعيين كلمة مرور جديدة</div>
+            <div class="verify-subtitle">أدخل كلمة مرور قوية مطابقة للشروط.</div>
+            <div class="form-group">
+                <div class="input-wrapper">
+                    <input type="password" class="form-input" id="reset-pass" placeholder="كلمة المرور الجديدة" minlength="8" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}">
+                    <i class="fas fa-lock input-icon"></i>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="input-wrapper">
+                    <input type="password" class="form-input" id="reset-pass-confirm" placeholder="تأكيد كلمة المرور">
+                    <i class="fas fa-lock input-icon"></i>
+                </div>
+            </div>
+            <div class="verify-actions">
+                <button class="btn btn-ghost" type="button" id="reset-cancel">إلغاء</button>
+                <button class="btn btn-primary" type="button" id="reset-save">حفظ</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Password strength validation: >=8, 1 uppercase, 1 lowercase, 1 symbol
+        function isStrongPassword(pass) {
+            return /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/.test(pass || '');
+        }
+
+        // Detailed error message for password rules
+        function getPasswordError(pass) {
+            if (!pass || pass.length < 8) {
+                return 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.';
+            }
+            if (!/[A-Z]/.test(pass)) {
+                return 'يجب أن تحتوي كلمة المرور على حرف إنجليزي كبير واحد على الأقل.';
+            }
+            if (!/[a-z]/.test(pass)) {
+                return 'يجب أن تحتوي كلمة المرور على حرف إنجليزي صغير واحد على الأقل.';
+            }
+            if (!/[^A-Za-z0-9]/.test(pass)) {
+                return 'يجب أن تحتوي كلمة المرور على رمز واحد على الأقل.';
+            }
+            return '';
+        }
+
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                
+                const size = Math.random() * 4 + 2;
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                const delay = Math.random() * 6;
+                
+                particle.style.width = size + 'px';
+                particle.style.height = size + 'px';
+                particle.style.left = x + '%';
+                particle.style.top = y + '%';
+                particle.style.animationDelay = delay + 's';
+                particle.style.animationDuration = (Math.random() * 3 + 3) + 's';
+                
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Allow only gmail, outlook, yahoo
+        function isAllowedEmail(email) {
+            const e = (email || '').trim().toLowerCase();
+            return e.endsWith('@gmail.com') || e.endsWith('@outlook.com') || e.endsWith('@yahoo.com');
+        }
+
+        // Switch between login and register forms
+        function switchForm(formType) {
+            const loginForm = document.getElementById('login-form');
+            const registerForm = document.getElementById('register-form');
+            const loginToggle = document.getElementById('login-toggle');
+            const registerToggle = document.getElementById('register-toggle');
+            const authTitle = document.getElementById('auth-title');
+            const authSubtitle = document.getElementById('auth-subtitle');
+            const authFooterText = document.getElementById('auth-footer-text');
+            window.currentAuthMode = formType; // track current tab for Google flow
+
+            if (formType === 'login') {
+                loginForm.classList.add('active');
+                registerForm.classList.remove('active');
+                loginToggle.classList.add('active');
+                registerToggle.classList.remove('active');
+                
+                authTitle.textContent = 'مرحباً بك';
+                authSubtitle.textContent = 'سجل دخولك للوصول إلى حسابك';
+                authFooterText.innerHTML = 'ليس لديك حساب؟ <a href="#" onclick="switchForm(\'register\')">إنشاء حساب جديد</a>';
+            } else {
+                registerForm.classList.add('active');
+                loginForm.classList.remove('active');
+                registerToggle.classList.add('active');
+                loginToggle.classList.remove('active');
+                
+                authTitle.textContent = 'إنشاء حساب جديد';
+                authSubtitle.textContent = 'انضم إلى مجتمع TradeHub اليوم';
+                authFooterText.innerHTML = 'لديك حساب بالفعل؟ <a href="#" onclick="switchForm(\'login\')">تسجيل الدخول</a>';
+            }
+        }
+
+        // Toggle password visibility
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const toggle = input.nextElementSibling;
+            const icon = toggle.querySelector('i');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Social login
+        function socialLogin(provider) {
+            const btn = event.target.closest('.social-btn');
+            const originalText = btn.innerHTML;
+            
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحميل...';
+            btn.disabled = true;
+
+            // Simulate API call
+            setTimeout(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                showSuccess('تم تسجيل الدخول بنجاح!');
+            }, 2000);
+        }
+
+        // Form submission
+        function handleFormSubmit(formType) {
+            const form = document.getElementById(formType + '-form');
+            const submitBtn = form.querySelector('.submit-btn');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const loading = submitBtn.querySelector('.loading');
+
+            // Show loading state
+            btnText.style.display = 'none';
+            loading.style.display = 'block';
+            submitBtn.disabled = true;
+
+            if (formType === 'login') {
+                (async () => {
+                    const email = form.querySelector('input[type="email"]').value.trim();
+                    const password = document.getElementById('login-password').value.trim();
+                    const ok = await apiLogin(email, password);
+                    btnText.style.display = 'block';
+                    loading.style.display = 'none';
+                    submitBtn.disabled = false;
+                    if (ok) {
+                        setLoggedInUser(email);
+                        showSuccess('تم تسجيل الدخول بنجاح!');
+                        setTimeout(() => { window.location.href = 'index.html'; }, 700);
+                    } else {
+                        alert('البريد أو كلمة المرور غير صحيحة ❌');
+                    }
+                })();
+                return;
+            }
+
+            // For register: start email verification flow
+            try {
+                startEmailVerification({ submitBtn, btnText, loading });
+            } catch (err) {
+                btnText.style.display = 'block';
+                loading.style.display = 'none';
+                submitBtn.disabled = false;
+                alert('حدث خطأ غير متوقع.');
+            }
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            // Create success notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 2rem;
+                right: 2rem;
+                background: linear-gradient(135deg, #10b981, #059669);
+                color: white;
+                padding: 1rem 2rem;
+                border-radius: 12px;
+                box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+                z-index: 10000;
+                animation: slideInRight 0.5s ease-out;
+                font-weight: 500;
+            `;
+            notification.textContent = message;
+
+            // Add animation keyframes
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes slideInRight {
+                    from {
+                        transform: translateX(100%);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: translateX(0);
+                        opacity: 1;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+
+            document.body.appendChild(notification);
+
+            // Remove notification after 3 seconds
+            setTimeout(() => {
+                notification.style.animation = 'slideInRight 0.5s ease-out reverse';
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                    document.head.removeChild(style);
+                }, 500);
+            }, 3000);
+        }
+
+        // Add form event listeners (server-only auth)
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const email = this.querySelector('input[type="email"]').value.trim();
+            const password = document.getElementById('login-password').value.trim();
+
+            if (!isAllowedEmail(email)) {
+                alert('يسمح فقط ببريد gmail.com أو outlook.com أو yahoo.com');
+                return;
+            }
+
+            const ok = await apiLogin(email, password);
+            if (ok) {
+                setLoggedInUser(email);
+                alert('تم تسجيل الدخول بنجاح ✅');
+                try { window.location.href = 'index.html'; } catch (_) {}
+            } else {
+                alert('البريد أو كلمة المرور غير صحيحة ❌');
+            }
+        });
+
+        document.getElementById('register-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const name = this.querySelector('input[type="text"]').value.trim();
+            const email = this.querySelector('input[type="email"]').value.trim();
+            const password = document.getElementById('register-password').value.trim();
+            const confirmPassword = document.getElementById('confirm-password').value.trim();
+
+            if (password !== confirmPassword) {
+                alert('كلمتا المرور غير متطابقتين ❌');
+                return;
+            }
+
+            const pwdError = getPasswordError(password);
+            if (pwdError) {
+                alert(pwdError);
+                return;
+            }
+
+            if (!isAllowedEmail(email)) {
+                alert('يسمح فقط ببريد gmail.com أو outlook.com أو yahoo.com');
+                return;
+            }
+
+            const exists = await apiAccountExists(email);
+            if (exists) {
+                alert('هذا البريد مسجل مسبقاً ❌');
+                return;
+            }
+
+            const submitBtn = this.querySelector('.submit-btn');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const loading = submitBtn.querySelector('.loading');
+            btnText.style.display = 'none';
+            loading.style.display = 'block';
+            submitBtn.disabled = true;
+
+            try {
+                await startEmailVerification({ submitBtn, btnText, loading });
+            } catch (_) {
+                btnText.style.display = 'block';
+                loading.style.display = 'none';
+                submitBtn.disabled = false;
+                alert('حدث خطأ غير متوقع.');
+            }
+        });
+
+        // Google Identity Services setup
+        let googleUserEmail = '';
+        let googleUserName = '';
+        function initGoogle() {
+            try {
+                if (!window.google || !GOOGLE_CLIENT_ID) {
+                    const el = document.getElementById('gsi-button');
+                    if (el) el.style.display = 'none';
+                    const warn = document.getElementById('gsi-warning');
+                    if (warn) {
+                        warn.style.display = 'block';
+                        warn.innerHTML = 'تعذر تهيئة تسجيل الدخول عبر Google.<br>شغل الصفحة عبر خادم محلي مثل http://localhost وتأكد من ضبط GOOGLE_CLIENT_ID ومجالات الأصل المصرح بها في وحدة تحكم Google.';
+                    }
+                    return;
+                }
+                google.accounts.id.initialize({
+                    client_id: GOOGLE_CLIENT_ID,
+                    callback: handleGoogleCredential
+                });
+                google.accounts.id.renderButton(document.getElementById('gsi-button'), {
+                    theme: 'outline',
+                    size: 'large',
+                    shape: 'pill',
+                    text: 'continue_with'
+                });
+            } catch (e) {
+                const el = document.getElementById('gsi-button');
+                if (el) el.style.display = 'none';
+                console.warn('Google Sign-In disabled:', e);
+                const warn = document.getElementById('gsi-warning');
+                if (warn) {
+                    warn.style.display = 'block';
+                    warn.innerHTML = 'حدث خطأ في Google Sign-In (500).<br>تأكد من أن الأصل (Origin) مسموح في Google Cloud Console وأنك تعمل عبر http://localhost أو نطاق مصرح به.';
+                }
+            }
+        }
+
+        async function handleGoogleCredential(response) {
+            // Decode JWT to extract email and name
+            try {
+                const payload = JSON.parse(atob(response.credential.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
+                const email = payload.email || '';
+                const name = payload.name || payload.given_name || '';
+
+                if (!isAllowedEmail(email)) {
+                    alert('يسمح فقط ببريد gmail.com أو outlook.com أو yahoo.com');
+                    return;
+                }
+                googleUserEmail = email;
+                googleUserName = name;
+                const exists = await apiAccountExists(email);
+                const mode = (window.currentAuthMode === 'register') ? 'register' : 'login';
+
+                // Require email verification code after Google
+                currentVerificationCode = generateCode();
+                currentVerificationEmail = email;
+                loginCodeFlowEmail = email; // treat Google as login via code
+                currentRecipientName = (name || 'مستخدم');
+                try {
+                    const sentEmail = await sendVerificationCode(email, name || 'مستخدم');
+                    await apiRequestCode(email, currentVerificationCode).catch(()=>{});
+                    if (!sentEmail) { console.warn('Email not actually sent. Code:', currentVerificationCode); }
+                } catch(_) {}
+                openVerifyModal(email);
+                const verifyBtn = document.getElementById('verify-btn');
+                if (verifyBtn) { verifyBtn.onclick = function() { verifyCode(); }; }
+                return;
+            } catch (e) {
+                console.error('Failed to parse Google credential', e);
+                const el = document.getElementById('gsi-button');
+                if (el) el.style.display = 'none';
+            }
+        }
+
+        window.addEventListener('load', initGoogle);
+
+        // ============== Email Verification Flow ==============
+        let currentVerificationCode = '';
+        let currentVerificationEmail = '';
+        let canResendAt = 0;
+        let currentRegistrationData = null;
+        let forgotFlowEmail = '';
+        let loginCodeFlowEmail = '';
+        let isVerifyingCode = false;
+        let currentRecipientName = 'مستخدم';
+
+        function generateCode() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+
+        function openVerifyModal(email) {
+            const modal = document.getElementById('verify-modal');
+            const subtitle = document.getElementById('verify-subtitle');
+            subtitle.textContent = `أدخل رمز التحقق الذي أرسلناه إلى ${email}`;
+            modal.classList.add('active');
+
+            const inputs = Array.from(document.querySelectorAll('#code-inputs input'));
+            inputs.forEach(i => { i.value = ''; });
+            inputs[0].focus();
+
+            // auto move focus
+            inputs.forEach((input, idx) => {
+                input.oninput = () => {
+                    input.value = input.value.replace(/\D/g, '').slice(0,1);
+                    if (input.value && idx < inputs.length - 1) inputs[idx+1].focus();
+                };
+                input.onkeydown = (ev) => {
+                    if (ev.key === 'Backspace' && !input.value && idx > 0) inputs[idx-1].focus();
+                };
+            });
+
+            // paste handler: distribute digits right-to-left visual (DOM order)
+            const handlePaste = (e) => {
+                const clip = (e.clipboardData || window.clipboardData);
+                if (!clip) return;
+                const digits = (clip.getData('text') || '').replace(/\D/g, '').slice(0, inputs.length);
+                if (!digits) return;
+                e.preventDefault();
+                for (let i = 0; i < inputs.length; i++) {
+                    inputs[i].value = digits[i] || '';
+                }
+                // if full, trigger verify
+                if (digits.length === inputs.length) {
+                    document.getElementById('verify-btn').click();
+                } else {
+                    inputs[Math.min(digits.length, inputs.length - 1)].focus();
+                }
+            };
+            // attach paste on container and inputs
+            const container = document.getElementById('code-inputs');
+            container.onpaste = handlePaste;
+            inputs.forEach(inp => inp.onpaste = handlePaste);
+
+            // Bind a universal resend handler for all flows
+            const resendBtn = document.getElementById('resend-btn');
+            if (resendBtn) {
+                resendBtn.onclick = async function(){
+                    const now = Date.now();
+                    if (now < canResendAt) {
+                        const seconds = Math.ceil((canResendAt - now) / 1000);
+                        resendBtn.textContent = `انتظر ${seconds}s`;
+                        resendBtn.disabled = true;
+                        setTimeout(() => { resendBtn.textContent = 'إعادة الإرسال'; resendBtn.disabled = false; }, 1000);
+                        return;
+                    }
+                    currentVerificationCode = generateCode();
+                    canResendAt = Date.now() + 60000;
+                    resendBtn.disabled = true;
+                    resendBtn.textContent = '... جار الإرسال';
+                    try { await sendVerificationCode(currentVerificationEmail, currentRecipientName || 'مستخدم'); } catch(_) {}
+                    try { await apiRequestCode(currentVerificationEmail, currentVerificationCode); } catch(_) {}
+                    resendBtn.disabled = false;
+                    resendBtn.textContent = 'تم الإرسال ✓';
+                    setTimeout(() => resendBtn.textContent = 'إعادة الإرسال', 1500);
+                };
+            }
+        }
+
+        function closeVerifyModal() {
+            document.getElementById('verify-modal').classList.remove('active');
+        }
+
+        // Forgot password modals helpers
+        function openForgotModal() {
+            document.getElementById('forgot-modal').classList.add('active');
+        }
+        function closeForgotModal() {
+            document.getElementById('forgot-modal').classList.remove('active');
+        }
+        function openResetModal() {
+            document.getElementById('reset-modal').classList.add('active');
+        }
+        function closeResetModal() {
+            document.getElementById('reset-modal').classList.remove('active');
+        }
+
+        async function sendVerificationCode(email, name) {
+            // 1) حاول EmailJS أولاً إذا تم ضبط المفاتيح
+            if (window.emailjs && EMAILJS_PUBLIC_KEY && EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID) {
+                try {
+                    const result = await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+                        to_email: email,
+                        to_name: name || 'مستخدم',
+                        code: currentVerificationCode,
+                    });
+                    return !!result;
+                } catch (err) {
+                    console.warn('EmailJS failed, falling back to API', err);
+                }
+            }
+
+            // 2) إن وُجد API خادم، استخدمه
+            if (VERIFICATION_API_URL) {
+                try {
+                    const res = await fetch(VERIFICATION_API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ to_email: email, to_name: name || 'مستخدم', code: currentVerificationCode })
+                    });
+                    return res.ok;
+                } catch (e) {
+                    console.error('API error while sending email', e);
+                }
+            }
+
+            console.warn('لم يتم إرسال البريد: لا EmailJS ولا API مضبوط');
+            return false;
+        }
+
+        async function startEmailVerification(ui) {
+            const name = document.querySelector('#register-form input[type="text"]').value.trim();
+            const email = document.querySelector('#register-form input[type="email"]').value.trim();
+            const pass = document.getElementById('register-password').value;
+            const confirm = document.getElementById('confirm-password').value;
+
+            if (!name || !email || !pass || !confirm) {
+                ui.btnText.style.display = 'block';
+                ui.loading.style.display = 'none';
+                ui.submitBtn.disabled = false;
+                alert('يرجى تعبئة جميع الحقول.');
+                return;
+            }
+            if (pass !== confirm) {
+                ui.btnText.style.display = 'block';
+                ui.loading.style.display = 'none';
+                ui.submitBtn.disabled = false;
+                alert('كلمتا المرور غير متطابقتين.');
+                return;
+            }
+            if (!isAllowedEmail(email)) {
+                ui.btnText.style.display = 'block';
+                ui.loading.style.display = 'none';
+                ui.submitBtn.disabled = false;
+                alert('يسمح فقط ببريد gmail.com أو outlook.com أو yahoo.com');
+                return;
+            }
+
+            const passErr = getPasswordError(pass);
+            if (passErr) {
+                ui.btnText.style.display = 'block';
+                ui.loading.style.display = 'none';
+                ui.submitBtn.disabled = false;
+                alert(passErr);
+                return;
+            }
+
+            currentRegistrationData = { name, email, pass };
+            currentVerificationCode = generateCode();
+            currentVerificationEmail = email;
+            canResendAt = Date.now() + 60000; // 60s
+            currentRecipientName = name || 'مستخدم';
+
+            // Try sending email; proceed to modal regardless, but notify if not actually sent
+            const sentEmail = await sendVerificationCode(email, name);
+            await apiRequestCode(email, currentVerificationCode).catch(()=>{});
+            const sent = sentEmail;
+            if (!sent) {
+                console.warn('تم تخطي إرسال البريد (بيئة تطوير أو مفاتيح مفقودة). الكود هو:', currentVerificationCode);
+            }
+            openVerifyModal(email);
+
+            // Attach handlers once
+            const verifyBtn = document.getElementById('verify-btn');
+            const resendBtn = document.getElementById('resend-btn');
+
+            verifyBtn.onclick = () => verifyCode(ui);
+            // Resend now handled globally in openVerifyModal
+
+            // Stop loading state on the submit button now; wait for verification
+            ui.btnText.style.display = 'block';
+            ui.loading.style.display = 'none';
+            ui.submitBtn.disabled = false;
+        }
+
+        async function verifyCode(ui) {
+            if (isVerifyingCode) { return; }
+            isVerifyingCode = true;
+            try { const b = document.getElementById('verify-btn'); if (b) b.disabled = true; } catch(_) {}
+            const digits = Array.from(document.querySelectorAll('#code-inputs input')).map(i => i.value).join('');
+            if (digits.length !== 6) {
+                alert('أدخل الرمز المكوّن من 6 أرقام بالكامل.');
+                try { const b = document.getElementById('verify-btn'); if (b) b.disabled = false; } catch(_) {}
+                isVerifyingCode = false;
+                return;
+            }
+            // Verify with server (blocking). Do not proceed if invalid/expired.
+            const result = await apiVerifyCode(currentVerificationEmail, digits);
+            if (!result || !result.ok || !result.token) {
+                alert('الرمز غير صحيح أو منتهي.');
+                try { const b = document.getElementById('verify-btn'); if (b) b.disabled = false; } catch(_) {}
+                isVerifyingCode = false;
+                return;
+            }
+            window.__verify_token__ = result.token;
+
+            (async () => {
+                try {
+                    const isForgotFlow = !!forgotFlowEmail;
+                    const isLoginCodeFlow = !!loginCodeFlowEmail;
+                    if (isForgotFlow) {
+                        // Proceed to reset modal after successful code verification
+                        closeVerifyModal();
+                        openResetModal();
+                        return;
+                    } else if (isLoginCodeFlow) {
+                        const email = loginCodeFlowEmail;
+                        const exists = await apiAccountExists(email);
+                        if (!exists) {
+                            // Redirect to setup to choose password/name after verifying email
+                            try { sessionStorage.setItem('google_email_verified', email); } catch(_) {}
+                            closeVerifyModal();
+                            const q = new URLSearchParams({ email: email, name: (googleUserName || '') }).toString();
+                            window.location.href = 'setup.html?' + q;
+                            return;
+                        } else {
+                            closeVerifyModal();
+                            setLoggedInUser(email);
+                            showSuccess('تم تسجيل الدخول بنجاح!');
+                            // reset state
+                            loginCodeFlowEmail = '';
+                            setTimeout(() => { window.location.href = 'index.html'; }, 700);
+                            return;
+                        }
+                    } else {
+                        const payload = currentRegistrationData || {};
+                        if (payload.email && payload.pass) {
+                            const ok = await apiSaveUser(payload.email, payload.pass, payload.name || '');
+                            if (!ok) {
+                                alert('تعذر حفظ البيانات.');
+                                return;
+                            }
+                            setLoggedInUser(payload.email, payload.name);
+                        }
+                    }
+                } catch (_) {
+                    alert('تعذر حفظ البيانات.');
+                    return;
+                }
+                if (!forgotFlowEmail) {
+                    closeVerifyModal();
+                    showSuccess('تم إنشاء الحساب وتأكيد البريد بنجاح!');
+                    switchForm('login');
+                }
+            })();
+            // keep disabled; flow will redirect or switch
+            isVerifyingCode = false;
+        }
+
+        // Initialize particles on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // If already logged-in (server session), inform and redirect to home
+            (async function(){
+                try {
+                    const res = await fetch('/api/me', { cache: 'no-store' });
+                    if (res && res.ok) {
+                        const data = await res.json();
+                        if (data && data.ok) {
+                            try { showSuccess('أنت مسجل دخول بالفعل ✓'); } catch(_) {}
+                            setTimeout(function(){ window.location.href = 'index.html'; }, 700);
+                            return;
+                        }
+                    }
+                } catch(_) {}
+            })();
+            createParticles();
+            // Live password validation messages
+            const regPwd = document.getElementById('register-password');
+            const regName = document.getElementById('register-name');
+            const regConfirm = document.getElementById('confirm-password');
+            const loginPwd = document.getElementById('login-password');
+            const forgotLink = document.getElementById('forgot-password-link');
+            const loginCodeLink = document.getElementById('login-code-link');
+            const forgotSend = document.getElementById('forgot-send');
+            const forgotCancel = document.getElementById('forgot-cancel');
+            const resetSave = document.getElementById('reset-save');
+            const resetCancel = document.getElementById('reset-cancel');
+
+            function attachLiveValidation(input) {
+                if (!input) return;
+                input.addEventListener('input', function() {
+                    const err = getPasswordError(input.value);
+                    input.setCustomValidity(err);
+                    if (err) {
+                        input.reportValidity();
+                    }
+                });
+            }
+
+            attachLiveValidation(regPwd);
+            attachLiveValidation(loginPwd);
+            // Name: allow only Arabic/English letters, max 10, block paste of non-letters
+            if (regName) {
+                const sanitizeName = (val) => (val || '').replace(/[^A-Za-z\u0600-\u06FF]/g, '').slice(0,10);
+                regName.addEventListener('input', function(){
+                    const clean = sanitizeName(this.value);
+                    if (this.value !== clean) this.value = clean;
+                });
+                regName.addEventListener('paste', function(e){
+                    e.preventDefault();
+                    const text = (e.clipboardData || window.clipboardData).getData('text');
+                    const clean = sanitizeName(text);
+                    document.execCommand('insertText', false, clean);
+                });
+            }
+            if (regConfirm) {
+                regConfirm.addEventListener('input', function() {
+                    const pwd = regPwd ? regPwd.value : '';
+                    regConfirm.setCustomValidity(regConfirm.value === pwd ? '' : 'كلمتا المرور غير متطابقتين.');
+                    if (regConfirm.validationMessage) {
+                        regConfirm.reportValidity();
+                    }
+                });
+            }
+
+            // Forgot password flow bindings
+            if (forgotLink) {
+                forgotLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    openForgotModal();
+                });
+            }
+            if (loginCodeLink) {
+                loginCodeLink.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    try {
+                        const emailInput = document.querySelector('#login-form input[type="email"]');
+                        const email = (emailInput && emailInput.value || '').trim();
+                        if (!email) { alert('أدخل بريدك الإلكتروني أولاً.'); return; }
+                        if (!isAllowedEmail(email)) { alert('يسمح فقط ببريد gmail.com أو outlook.com أو yahoo.com'); return; }
+                        const exists = await apiAccountExists(email);
+                        if (!exists) { alert('لا يوجد حساب مرتبط بهذا البريد.'); return; }
+                        currentVerificationCode = generateCode();
+                        currentVerificationEmail = email;
+                        loginCodeFlowEmail = email;
+                        const sentEmail = await sendVerificationCode(email, 'مستخدم');
+                        await apiRequestCode(email, currentVerificationCode).catch(()=>{});
+                        const sent = sentEmail;
+                        if (!sent) {
+                            console.warn('Email not actually sent in this environment. Code:', currentVerificationCode);
+                        }
+                        openVerifyModal(email);
+                        const verifyBtn = document.getElementById('verify-btn');
+                        if (verifyBtn) { verifyBtn.onclick = async function() { verifyCode(); }; }
+                    } catch (_) {
+                        alert('تعذر بدء تسجيل الدخول عبر الرمز.');
+                    }
+                });
+            }
+            if (forgotCancel) {
+                forgotCancel.addEventListener('click', function() {
+                    closeForgotModal();
+                });
+            }
+            if (resetCancel) {
+                resetCancel.addEventListener('click', function() {
+                    closeResetModal();
+                    forgotFlowEmail = '';
+                });
+            }
+            if (forgotSend) {
+                forgotSend.addEventListener('click', async function() {
+                    const email = (document.getElementById('forgot-email').value || '').trim();
+                    if (!email) { alert('أدخل بريدك الإلكتروني.'); return; }
+                    if (!isAllowedEmail(email)) { alert('يسمح فقط ببريد gmail.com أو outlook.com أو yahoo.com'); return; }
+                    const exists = await apiAccountExists(email);
+                    if (!exists) {
+                        alert('لا يوجد حساب مرتبط بهذا البريد.');
+                        return;
+                    }
+                    // Prepare code and send
+                    currentVerificationCode = generateCode();
+                    currentVerificationEmail = email;
+                    forgotFlowEmail = email;
+                    const sentEmail = await sendVerificationCode(email, 'مستخدم');
+                    await apiRequestCode(email, currentVerificationCode).catch(()=>{});
+                    const sent = sentEmail;
+                    if (!sent) {
+                        console.warn('Email not actually sent in this environment. Code:', currentVerificationCode);
+                    }
+                    closeForgotModal();
+                    openVerifyModal(email);
+                    // Bind verify button for forgot flow
+                    const verifyBtn = document.getElementById('verify-btn');
+                    if (verifyBtn) {
+                        verifyBtn.onclick = function() { verifyCode(); };
+                    }
+                });
+            }
+            if (resetSave) {
+                resetSave.addEventListener('click', async function() {
+                    const p = document.getElementById('reset-pass').value;
+                    const c = document.getElementById('reset-pass-confirm').value;
+                    const err = getPasswordError(p);
+                    if (err) { alert(err); return; }
+                    if (p !== c) { alert('كلمتا المرور غير متطابقتين.'); return; }
+                    try {
+                        if (forgotFlowEmail) {
+                            const ok = await apiResetPassword(forgotFlowEmail, p, (window.__verify_token__ || ''));
+                            if (!ok) { alert('تعذر حفظ كلمة المرور.'); return; }
+                        }
+                        closeResetModal();
+                        showSuccess('تم تحديث كلمة المرور بنجاح!');
+                        forgotFlowEmail = '';
+                        switchForm('login');
+                    } catch (_) {
+                        alert('تعذر حفظ كلمة المرور.');
+                    }
+                });
+            }
+        });
+
+        // Add some interactive effects
+        document.querySelectorAll('.form-input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+            });
+
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+
+        // Add keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                window.location.href = 'index.html';
+            }
+        });
+    </script>
+</body>
+</html>

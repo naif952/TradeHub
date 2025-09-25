@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إعداد الحساب</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: #0a0a0f; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+        .card { width: 100%; max-width: 460px; background: rgba(15, 15, 25, 0.92); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 20px; padding: 1.5rem; box-shadow: 0 25px 50px rgba(0,0,0,0.5); }
+        .title { text-align: center; font-size: 1.6rem; font-weight: 700; margin-bottom: 0.25rem; background: linear-gradient(135deg, #6366f1, #a855f7, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+        .subtitle { text-align: center; color: #94a3b8; margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1rem; }
+        .label { display: block; color: #e2e8f0; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.95rem; }
+        .input { width: 100%; background: rgba(20,20,30,0.85); border: 1px solid rgba(99,102,241,0.25); border-radius: 12px; padding: 0.9rem 1rem; color: #fff; font-size: 1rem; }
+        .input:focus { outline: none; border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+        .hint { color: #64748b; font-size: 0.85rem; margin-top: 0.35rem; }
+        .btn { width: 100%; margin-top: 0.75rem; padding: 0.9rem 1rem; border-radius: 12px; border: 0; color: #fff; font-weight: 700; cursor: pointer; background: linear-gradient(135deg, #6366f1, #a855f7); }
+        .row { display: flex; gap: 0.75rem; }
+        .row .input { flex: 1; }
+        .success { display: none; text-align: center; margin-top: 1rem; color: #10b981; font-weight: 600; }
+        .back { position: absolute; top: 1.5rem; right: 1.5rem; color: #6366f1; text-decoration: none; }
+        @media (max-width: 420px) {
+            .title { font-size: 1.35rem; }
+            .subtitle { font-size: 0.9rem; }
+            .card { padding: 1.25rem; }
+        }
+    </style>
+</head>
+<body>
+    <a class="back" href="index.html" title="رجوع للصفحة الرئيسية"><i class="fas fa-home"></i></a>
+    <div class="card">
+        <div class="title">إعداد بيانات الدخول</div>
+        <div class="subtitle">اختر اسم المستخدم وكلمة المرور فقط</div>
+        <form id="setup-form">
+            <div class="form-group">
+                <label class="label">اسم المستخدم</label>
+                <input id="username" class="input" type="text" placeholder="أدخل اسم المستخدم" required maxlength="10" pattern="^[A-Za-z\u0600-\u06FF]{1,10}$" title="الاسم يجب أن يكون حروف فقط (عربي/إنجليزي) وبحد أقصى 10">
+                <div class="hint">يمكنك تغييره لاحقاً من الإعدادات.</div>
+            </div>
+            <div class="form-group">
+                <label class="label">كلمة المرور</label>
+                <input id="password" class="input" type="password" placeholder="أدخل كلمة المرور" required minlength="8" pattern="(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}" title="يجب أن تكون 8 أحرف على الأقل وتحتوي على حرف كبير وحرف صغير ورمز">
+                <div class="hint">الحد الأدنى 8 أحرف، مع حرف كبير وصغير ورمز.</div>
+            </div>
+            <button class="btn" type="submit">حفظ ومتابعة</button>
+            <div id="ok" class="success">تم الحفظ! سيتم تحويلك خلال لحظات...</div>
+        </form>
+    </div>
+
+    <script>
+        // تخزين محلي للحسابات كـ JSON
+        const USERS_KEY = 'app_users_json';
+        const CURRENT_USER_KEY = 'app_current_user';
+
+        // API حفظ المستخدم (يطابق auth.html) - لا يسمح بالكتابة فوق حساب موجود
+        async function apiSaveUser(email, pass, name='') {
+            try {
+                const res = await fetch('/api/storage', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, pass, name })
+                });
+                if (res.status === 409) return false;
+                return res.ok;
+            } catch (_) { return false; }
+        }
+        async function apiAccountExists(email) {
+            try {
+                const res = await fetch('/api/account_exists?email=' + encodeURIComponent(email), { cache: 'no-store' });
+                if (!res.ok) return false;
+                const data = await res.json();
+                return !!(data && data.exists);
+            } catch (_) { return false; }
+        }
+
+        function isStrongPassword(pass) {
+            return /^(?=.*[a-z])(?=.*[A-Z])(?=.*[^A-Za-z0-9]).{8,}$/.test(pass || '');
+        }
+        function getPasswordError(pass) {
+            if (!pass || pass.length < 8) return 'كلمة المرور يجب أن تكون 8 أحرف على الأقل.';
+            if (!/[A-Z]/.test(pass)) return 'يجب أن تحتوي كلمة المرور على حرف إنجليزي كبير واحد على الأقل.';
+            if (!/[a-z]/.test(pass)) return 'يجب أن تحتوي كلمة المرور على حرف إنجليزي صغير واحد على الأقل.';
+            if (!/[^A-Za-z0-9]/.test(pass)) return 'يجب أن تحتوي كلمة المرور على رمز واحد على الأقل.';
+            return '';
+        }
+
+        function loadUsers() {
+            try {
+                const raw = localStorage.getItem(USERS_KEY);
+                return raw ? JSON.parse(raw) : {};
+            } catch (_) { return {}; }
+        }
+        function saveUsers(users) {
+            try { localStorage.setItem(USERS_KEY, JSON.stringify(users)); } catch (_) {}
+        }
+        function setCurrentUser(email) {
+            try { localStorage.setItem(CURRENT_USER_KEY, email); } catch (_) {}
+        }
+
+        // جلب الاسم أو البريد من استعلام الرابط (قادماً من Google)
+        const params = new URLSearchParams(location.search);
+        const prefillName = params.get('name') || params.get('email') || '';
+        if (prefillName) document.getElementById('username').value = prefillName;
+        function handleTamperAttempt() {
+            try {
+                // Set a short lockout period (e.g., 2 minutes)
+                const lock = { until: Date.now() + 2 * 60 * 1000 };
+                localStorage.setItem('setup_lockout', JSON.stringify(lock));
+            } catch (_) {}
+            try { sessionStorage.clear(); } catch (_) {}
+            try { localStorage.removeItem('google_email_verified'); } catch (_) {}
+            alert('محاولة غير مصرح بها تم اكتشافها. تم إيقاف العملية وإعادتك لصفحة الدخول.');
+            window.location.replace('auth.html');
+        }
+
+        const googleEmail = (function(){
+            const fromQuery = params.get('email') || '';
+            let verified = '';
+            try { verified = sessionStorage.getItem('google_email_verified') || ''; } catch (_) {}
+            // Allow only if matches the verified email from the previous step
+            if (fromQuery && verified && fromQuery.toLowerCase() === verified.toLowerCase()) {
+                return fromQuery;
+            }
+            if (fromQuery) {
+                // Detected mismatch or missing verification while query contains email
+                handleTamperAttempt();
+            }
+            return '';
+        })();
+
+        // Respect temporary lockout
+        try {
+            const rawLock = localStorage.getItem('setup_lockout');
+            if (rawLock) {
+                const lock = JSON.parse(rawLock);
+                if (lock && typeof lock.until === 'number' && Date.now() < lock.until) {
+                    const remaining = Math.ceil((lock.until - Date.now()) / 1000);
+                    alert('تم إيقاف محاولات الإعداد مؤقتاً. الرجاء المحاولة بعد ' + remaining + ' ثانية.');
+                    window.location.replace('auth.html');
+                } else {
+                    localStorage.removeItem('setup_lockout');
+                }
+            }
+        } catch (_) {}
+
+        document.getElementById('setup-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            if (!username || !password) return;
+
+            const pwdErr = getPasswordError(password);
+            if (pwdErr) { alert(pwdErr); return; }
+
+            // إن كان لدينا بريد Google: احفظ في الخادم (data.json) مثل auth.html
+            let serverSaved = false;
+            if (googleEmail) {
+                serverSaved = await apiSaveUser(googleEmail, password, username);
+                if (!serverSaved) {
+                    alert('لا يمكن إنشاء/تعديل هذا البريد من هذه الصفحة. تأكد من صحة عملية التحقق.');
+                    return; // أوقف العملية إذا فشل الحفظ الخادمي (مثل 409)
+                }
+            }
+
+            // حفظ محلي دائماً كنسخة احتياطية/للاستخدام داخل المتصفح
+            const users = loadUsers();
+            const key = googleEmail || ('user:' + username);
+            if (!users[key]) users[key] = {};
+            users[key].username = username;
+            users[key].password = password;
+            users[key].email = googleEmail || null;
+            users[key].createdAt = users[key].createdAt || new Date().toISOString();
+            users[key].updatedAt = new Date().toISOString();
+            saveUsers(users);
+
+            // تسجيل الدخول
+            setCurrentUser(key);
+            document.getElementById('ok').style.display = 'block';
+            setTimeout(() => { window.location.href = 'index.html'; }, 900);
+        });
+
+        // Enforce letters-only and max 10 for username (Arabic/English)
+        (function(){
+            try {
+                const u = document.getElementById('username');
+                if (!u) return;
+                const sanitize = (val) => (val || '').replace(/[^A-Za-z\u0600-\u06FF]/g, '').slice(0,10);
+                u.addEventListener('input', function(){
+                    const clean = sanitize(this.value);
+                    if (this.value !== clean) this.value = clean;
+                });
+                u.addEventListener('paste', function(e){
+                    e.preventDefault();
+                    const text = (e.clipboardData || window.clipboardData).getData('text');
+                    const clean = sanitize(text);
+                    document.execCommand('insertText', false, clean);
+                });
+            } catch(_) {}
+        })();
+
+        // إن ضغط المستخدم ESC يرجع للرئيسية
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape') window.location.href = 'index.html'; });
+    </script>
+</body>
+</html>
+
+

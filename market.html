@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html class="dark" dir="rtl" lang="ar"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>TradeHub Market</title>
+<link href="data:image/x-icon;base64," rel="icon" type="image/x-icon"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#3b82f6",
+              "background-light": "#f8fafc",
+              "background-dark": "#0b1120",
+              "card-light": "#ffffff",
+              "card-dark": "#1e293b",
+              "accent-light": "#e0f2fe",
+              "accent-dark": "#1e3a8a",
+            },
+            fontFamily: {
+              display: ["Cairo", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "0.5rem",
+              lg: "0.75rem",
+              xl: "1rem",
+              full: "9999px",
+            },
+            boxShadow: {
+              'glow': '0 0 15px rgba(59, 130, 246, 0.5)',
+            }
+          },
+        },
+      };
+    </script>
+<style type="text/tailwindcss">
+        @layer utilities {
+          .nav-link {
+            @apply relative px-3 py-2 text-sm font-medium text-gray-400 transition-all duration-300 ease-in-out;
+          }
+          .nav-link:hover {
+            @apply text-primary dark:text-primary;
+          }
+          .nav-link::after {
+            @apply content-[''] absolute bottom-0 left-0 right-0 h-0.5 bg-primary transform scale-x-0 origin-right transition-transform duration-300 ease-in-out;
+          }
+           .rtl .nav-link::after {
+             @apply origin-left;
+           }
+          .nav-link.active {
+             @apply text-primary dark:text-primary;
+          }
+          .nav-link.active::after {
+             @apply scale-x-100;
+          }
+          .category-card {
+            @apply bg-card-light dark:bg-card-dark rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-glow;
+          }
+        }
+      </style>
+<style>
+:root { --logo-size:   160px; }
+body { background: #0a0a0f; }
+/* Animated Background like index.html */
+.bg-animation { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.1; }
+.grid-line { position: absolute; background: linear-gradient(90deg, transparent, #6366f1, transparent); animation: pulse 3s ease-in-out infinite; }
+.grid-line.horizontal { width: 100%; height: 1px; animation-delay: var(--delay); }
+.grid-line.vertical { height: 100%; width: 1px; animation-delay: var(--delay); }
+@keyframes pulse { 0%,100%{opacity:0.1;} 50%{opacity:0.6;} }
+/* Aurora gradient glow */
+.aurora { position: fixed; inset: -20% -10% auto -10%; height: 60vh; pointer-events: none; z-index: -2; filter: blur(60px) saturate(120%); opacity: 0.45; }
+.aurora::before, .aurora::after { content: ""; position: absolute; inset: 0; background: radial-gradient(600px 300px at 20% 60%, rgba(99,102,241,0.55), transparent 60%), radial-gradient(500px 260px at 80% 30%, rgba(168,85,247,0.45), transparent 60%), radial-gradient(460px 220px at 50% 10%, rgba(16,185,129,0.35), transparent 60%); animation: drift 18s ease-in-out infinite alternate; }
+.aurora::after { transform: translateY(-10%); filter: hue-rotate(12deg); animation-duration: 22s; opacity: 0.9; }
+@keyframes drift { from { transform: translateX(-2%) translateY(-2%); } to { transform: translateX(2%) translateY(2%); } }
+/* Subtle moving light spot following the cursor */
+.light-spot { position: fixed; width: 280px; height: 280px; border-radius: 50%; pointer-events: none; background: radial-gradient(circle, rgba(99,102,241,0.25), rgba(99,102,241,0) 60%); mix-blend-mode: screen; filter: blur(12px); opacity: 0.35; z-index: -1; }
+</style>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+<script>
+  // Server-verified auth gate: rely on session, not localStorage
+  (async function(){
+    try {
+      const res = await fetch('/api/me', { cache: 'no-store' });
+      if (!res.ok) {
+        window.location.replace('index.html?login_required=1');
+        return;
+      }
+      const data = await res.json();
+      if (!data || !data.ok) {
+        window.location.replace('index.html?login_required=1');
+      }
+    } catch (_) {
+      window.location.href = 'index.html?login_required=1';
+    }
+  })();
+</script>
+<div class="bg-animation" id="bgAnimation"></div>
+<div class="aurora"></div>
+<div class="light-spot" id="lightSpot" style="top:40vh;left:50%;transform:translate(-50%,-50%)"></div>
+<div class="flex flex-col min-h-screen">
+<header class="sticky top-0 z-30 bg-transparent backdrop-blur-lg border-b border-white/10">
+<div class="container mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex items-center justify-between h-20">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3 text-gray-900 dark:text-white">
+<img src="image/TradeHubI.png" alt="TradeHub Logo" class="h-[var(--logo-size)] w-[var(--logo-size)] object-contain drop-shadow-[0_0_8px_rgba(59,130,246,0.35)]"/>
+</div>
+<a href="index.html" class="nav-link flex items-center gap-1.5">
+<span class="material-symbols-outlined text-base"> home </span>
+<span class="hidden sm:inline">الرئيسية</span>
+</a>
+<nav class="hidden md:flex items-center gap-6">
+<a class="nav-link active" href="#">لوحة التحكم</a>
+<a class="nav-link" href="#">طلباتي</a>
+<a id="sellDigitalLink" class="nav-link" href="#">بيع منتج رقمــي</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative w-full max-w-xs">
+<div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-gray-400 dark:text-gray-500"> search </span>
+</div>
+<input class="w-full pr-10 pl-4 py-2.5 rounded-full bg-slate-800/60 border border-white/5 text-sm placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary/60 focus:border-primary/60 transition-all" placeholder="بحث..." type="text"/>
+</div>
+<button class="shrink-0 inline-flex items-center justify-center p-0 bg-transparent border-0 shadow-none">
+<path d="M15.5 8.5a3.5 3.5 0 1 1-7 0 3.5 3.5 0 0 1 7 0Z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M5.5 19.25c.9-2.9 3.6-4.75 6.5-4.75s5.6 1.85 6.5 4.75" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+ </button>
+<div id="userMenu" class="relative">
+  <button id="userMenuBtn" class="flex items-center gap-2 flex-row-reverse rounded-full border border-white/10 bg-white/5 px-2 py-1 hover:bg-white/10 transition">
+    <span class="material-symbols-outlined"> account_circle </span>
+    <span id="userEmail" class="hidden sm:inline text-sm text-white/90">حسابي</span>
+  </button>
+  <div id="userDropdown" class="absolute left-0 mt-2 w-48 bg-[#1e293b] border border-white/10 rounded-lg shadow-xl hidden z-40">
+    <a href="#" id="openSettings" class="block px-4 py-2 text-sm text-gray-200 hover:bg-white/10">إعدادات الحساب</a>
+    <a href="#" id="logoutLink" class="block px-4 py-2 text-sm text-red-400 hover:bg-white/10">تسجيل الخروج</a>
+  </div>
+  </div>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-10">
+<div class="max-w-7xl mx-auto">
+<h2 class="text-4xl font-bold text-gray-900 dark:text-white mb-8">المتجر</h2>
+<div class="border-b border-gray-200 dark:border-gray-700">
+<nav aria-label="Tabs" class="-mb-px flex space-x-reverse space-x-8 overflow-x-auto" id="marketTabs">
+<a class="whitespace-nowrap py-4 px-2 border-b-2 font-medium text-lg text-primary border-primary" href="#" data-cat="fortnite">فورتنايت</a>
+<a class="whitespace-nowrap py-4 px-2 border-b-2 font-medium text-lg text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600 transition-colors" href="#" data-cat="roblox">روبلوكس</a>
+<a class="whitespace-nowrap py-4 px-2 border-b-2 font-medium text-lg text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600 transition-colors" href="#" data-cat="minecraft">ماينكرافت</a>
+<a class="whitespace-nowrap py-4 px-2 border-b-2 font-medium text-lg text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600 transition-colors" href="#" data-cat="discord">ديسكورد</a>
+<a class="whitespace-nowrap py-4 px-2 border-b-2 font-medium text-lg text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600 transition-colors" href="#" data-cat="pc_tweaks">تويكات الكمبيوتر</a>
+<a class="whitespace-nowrap py-4 px-2 border-b-2 font-medium text-lg text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600 transition-colors" href="#" data-cat="pc_games">ألعاب الكمبيوتر</a>
+<a class="whitespace-nowrap py-4 px-2 border-b-2 font-medium text-lg text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600 transition-colors" href="#" data-cat="overwatch">أوفرواتش</a>
+<a class="whitespace-nowrap py-4 px-2 border-b-2 font-medium text-lg text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600 transition-colors" href="#" data-cat="rocket_league">روكيت ليق</a>
+<a class="whitespace-nowrap py-4 px-2 border-b-2 font-medium text-lg text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600 transition-colors" href="#" data-cat="usernames">يوزرات</a>
+<a class="whitespace-nowrap py-4 px-2 border-b-2 font-medium text-lg text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600 transition-colors" href="#" data-cat="other">أخرى</a>
+</nav>
+</div>
+<div class="mt-10">
+<div class="flex items-center justify-between gap-3 mb-6">
+  <h3 class="text-2xl font-bold text-gray-900 dark:text-white" id="categoryTitle">فورتنايت</h3>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-8" id="subcategoriesGrid"></div>
+</div>
+</div>
+</main>
+</div>
+
+<!-- Sell Digital Product Modal -->
+<div id="sellModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden">
+  <div class="mx-auto mt-10 w-[95%] max-w-5xl rounded-3xl border border-white/10 bg-gradient-to-b from-slate-900/95 to-slate-800/90 text-gray-100 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+    <div class="relative px-6 pt-6 pb-4 border-b border-white/10 flex items-center justify-between">
+      <h3 class="text-xl font-bold">بيع منتج رقمي</h3>
+      <button id="sellClose" class="text-gray-400 hover:text-gray-200 text-2xl leading-none">×</button>
+    </div>
+    <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 overflow-y-auto">
+      <!-- Left: Image drop (place on left in RTL by using col-start-2) -->
+      <div class="order-1 md:order-none md:col-start-2 md:row-start-1">
+        <div id="imageDrop" class="aspect-[4/3] w-full rounded-2xl border-2 border-dashed border-white/15 bg-white/5 flex items-center justify-center text-center p-4 cursor-pointer hover:border-primary/50 transition">
+          <div>
+            <div class="text-sm text-gray-300 mb-2">ارفع صورة للمنتج (اختياري)</div>
+            <div class="text-xs text-gray-400">اسحب وافلت أو اضغط للاختيار</div>
+          </div>
+        </div>
+        <div id="imagePreview" class="mt-4 hidden">
+          <img id="imagePreviewImg" alt="preview" class="rounded-xl w-full object-cover"/>
+        </div>
+        <input id="imageInput" type="file" accept="image/*" class="hidden"/>
+      </div>
+
+      <!-- Right: Form fields (place on right in RTL by using col-start-1) -->
+      <div class="space-y-4 order-2 md:order-none md:col-start-1 md:row-start-1">
+        <div>
+          <label class="block text-sm text-gray-300 mb-1">ضع اسم المنتج</label>
+          <input id="prodName" class="w-full rounded-xl bg-slate-800/60 border border-white/10 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/60" placeholder="مثال: حساب لعبة قوي"/>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-300 mb-1">قسم المنتج</label>
+          <select id="prodCat" class="w-full rounded-xl bg-slate-800/60 border border-white/10 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/60">
+            <option>فورتنايت</option>
+            <option>روبلوكس</option>
+            <option>ماينكرافت</option>
+            <option>ديسكورد</option>
+            <option>تويكات الكمبيوتر</option>
+            <option>ألعاب الكمبيوتر</option>
+            <option>أوفرواتش</option>
+            <option>روكيت ليق</option>
+            <option>يوزرات</option>
+            <option>أخرى</option>
+          </select>
+        </div>
+        <div id="subCatWrap">
+          <label class="block text-sm text-gray-300 mb-1">القسم الفرعي للمنتج</label>
+          <select id="prodSubCat" class="w-full rounded-xl bg-slate-800/60 border border-white/10 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/60">
+            <option value="">اختر القسم الفرعي</option>
+          </select>
+          <p class="text-xs text-gray-500 mt-1">يُخفى تلقائياً إذا كان قسم المنتج "أخرى"</p>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-300 mb-1">وصف المنتج</label>
+          <textarea id="prodDesc" rows="3" class="w-full rounded-xl bg-slate-800/60 border border-white/10 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/60" placeholder="اكتب وصفاً واضحاً للمنتج، أبرز الميزات والحالة وأي ملاحظات مهمة..."></textarea>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-300 mb-1">طريقة الدفع</label>
+          <select id="paymentMethod" class="w-full rounded-xl bg-slate-800/60 border border-white/10 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/60">
+            <option value="">اختر طريقة الدفع</option>
+            <option value="bank">تحويل بنكي</option>
+            <option value="digital">تحويل رقمي</option>
+            <option value="ingame">عملة داخل اللعبه</option>
+            <option value="barter">مقايضة/تبادل</option>
+          </select>
+          <div id="paymentDetails" class="mt-3 space-y-2">
+            <!-- يتم توليد الحقول حسب الطريقة المختارة -->
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-300 mb-1">طريقة التواصل ما بينك وما بين المشتري</label>
+          <input id="contactMethod" class="w-full rounded-xl bg-slate-800/60 border border-white/10 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/60" placeholder="رابط ديسكورد / تيليجرام / بريد ..."/>
+        </div>
+        <div>
+          <label class="block text-sm text-gray-300 mb-1">دلائل تثبت ان المنتج لديك</label>
+          <textarea id="proofDetails" rows="3" class="w-full rounded-xl bg-slate-800/60 border border-white/10 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/60" placeholder="روابط، صور، وصف مختصر..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="px-6 pb-6 flex items-center justify-end gap-2 border-t border-white/10">
+      <button id="sellCancel" class="px-4 py-2 rounded-md border border-white/10 hover:bg-white/10 text-sm">إلغاء</button>
+      <button id="sellSaveFake" class="px-4 py-2 rounded-md bg-primary/90 hover:bg-primary text-white text-sm">حفظ (تصميم فقط)</button>
+    </div>
+  </div>
+  </div>
+
+<!-- Account Settings Modal -->
+<div id="accountSettingsModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden">
+  <div class="mx-auto mt-16 w-[95%] max-w-2xl rounded-3xl border border-white/10 bg-gradient-to-b from-slate-900/95 to-slate-800/90 p-0 text-gray-100 shadow-2xl overflow-hidden">
+    <div class="relative">
+      <div class="absolute inset-0 opacity-30 pointer-events-none" style="background: radial-gradient(800px 200px at -10% -20%, rgba(99,102,241,.35), transparent 60%), radial-gradient(600px 260px at 110% 10%, rgba(168,85,247,.3), transparent 60%), radial-gradient(400px 260px at 50% 120%, rgba(16,185,129,.25), transparent 60%);"></div>
+      <div class="relative px-6 pt-6 pb-4 border-b border-white/10 flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <span class="material-symbols-outlined text-primary"> settings </span>
+          <h3 class="text-xl font-bold">إعدادات الحساب</h3>
+        </div>
+        <button id="closeSettings" class="text-gray-400 hover:text-gray-200 text-2xl leading-none">×</button>
+      </div>
+      <div class="relative p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="col-span-1 md:col-span-2">
+          <div class="rounded-2xl border border-white/10 bg-white/5 p-4 select-none">
+            <div class="text-sm text-gray-300 mb-1">رمز الحساب (غير قابل للتغيير)</div>
+            <div id="codeDisplay" class="text-lg font-semibold tracking-wider text-white/90">—</div>
+          </div>
+        </div>
+        <div class="col-span-1 md:col-span-2 grid grid-cols-1 gap-2">
+          <label class="text-gray-300">اسمك</label>
+          <div class="flex gap-2">
+            <input id="nameInput" class="flex-1 rounded-xl bg-slate-800/60 border border-white/10 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/60" placeholder="ادخل اسمك"/>
+            <button id="nameEditBtn" class="px-3 py-2 rounded-xl bg-primary/80 hover:bg-primary text-white text-sm">حفظ</button>
+          </div>
+          <p id="nameHint" class="text-xs text-gray-400">يمكنك تعديل الاسم مرة واحدة فقط.</p>
+        </div>
+
+        <div class="col-span-1 md:col-span-2">
+          <div class="rounded-2xl border border-white/10 bg-white/5 p-4">
+            <div class="flex items-center justify-between mb-3">
+              <div>
+                <div class="text-sm text-gray-300">البريد الإلكتروني</div>
+                <div id="emailCurrent" class="text-base font-semibold text-white/90">—</div>
+              </div>
+              <button id="startEmailChange" class="px-3 py-2 rounded-xl bg-primary/80 hover:bg-primary text-white text-sm">تغيير البريد</button>
+            </div>
+            <div id="emailChangePanel" class="grid grid-cols-1 gap-3 hidden">
+              <div class="grid grid-cols-1 gap-2">
+                <label class="text-gray-300">البريد الجديد</label>
+                <input id="newEmailInput" class="rounded-xl bg-slate-800/60 border border-white/10 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/60" placeholder="example@email.com"/>
+              </div>
+              <div class="flex items-center gap-2">
+                <button id="sendEmailCode" class="px-3 py-2 rounded-xl bg-primary/80 hover:bg-primary text-white text-sm">إرسال الكود</button>
+                <span id="sendStatus" class="text-xs text-gray-400"></span>
+              </div>
+              <div class="grid grid-cols-1 gap-2">
+                <label class="text-gray-300">رمز التحقق (6 أرقام)</label>
+                <input id="emailCodeInput" maxlength="6" inputmode="numeric" class="rounded-xl bg-slate-800/60 border border-white/10 px-3 py-2 text-sm tracking-widest text-center focus:outline-none focus:ring-2 focus:ring-primary/60" placeholder="------"/>
+              </div>
+              <div class="flex items-center gap-2">
+                <button id="confirmEmailChange" class="px-3 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm">تأكيد التغيير</button>
+                <button id="cancelEmailChange" class="px-3 py-2 rounded-xl border border-white/10 hover:bg-white/10 text-white/90 text-sm">إلغاء</button>
+              </div>
+              <p id="emailHint" class="text-xs text-gray-400">سيُسمح بتغيير البريد مرة واحدة فقط.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-span-1 md:col-span-2 flex justify-between items-center pt-2">
+          <div class="text-xs text-gray-400">آخر تحديث للمعلومات يظهر مباشرة بعد الحفظ.</div>
+          <div class="flex gap-2">
+            <button id="settingsCloseBtn" class="px-3 py-1.5 rounded-md border border-white/10 hover:bg-white/10 text-sm">إغلاق</button>
+            <button id="settingsLogout" class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-red-500 hover:bg-red-600 text-white text-sm">
+              <span class="material-symbols-outlined text-base"> logout </span>
+              <span>تسجيل الخروج</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>
+
+  <!-- Product Details Modal -->
+  <div id="productModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden">
+  <div class="mx-auto mt-10 w-[95%] max-w-3xl rounded-3xl border border-white/10 bg-gradient-to-b from-slate-900/95 to-slate-800/90 text-gray-100 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="relative px-6 pt-6 pb-4 border-b border-white/10 flex items-center justify-between">
+        <h3 id="pm_title" class="text-xl font-bold">تفاصيل المنتج</h3>
+        <button id="pm_close" class="text-gray-400 hover:text-gray-200 text-2xl leading-none">×</button>
+      </div>
+      <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 overflow-y-auto">
+        <div>
+          <img id="pm_image" alt="product" class="w-full h-64 object-cover rounded-xl border border-white/10"/>
+          <div id="pm_noimg" class="w-full h-64 rounded-xl border border-white/10 bg-white/5 hidden flex items-center justify-center text-gray-300 gap-2"><span class="material-symbols-outlined">image</span>لا توجد صورة</div>
+        </div>
+        <div class="space-y-3">
+          <div class="text-2xl font-bold" id="pm_name">—</div>
+          <div class="text-primary font-semibold" id="pm_price">—</div>
+          <div class="text-sm text-gray-300 whitespace-pre-wrap" id="pm_desc">—</div>
+          <div class="flex items-center gap-3 pt-2">
+            <div class="w-9 h-9 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold" id="pm_avatar">U</div>
+            <div>
+              <div class="leading-5" id="pm_seller">مستخدم</div>
+              <div class="text-xs text-gray-400 leading-4" id="pm_code">رمز: —</div>
+            </div>
+          </div>
+          <div class="text-xs text-gray-400">التواصل: <span id="pm_contact">—</span></div>
+          <div class="text-xs text-gray-500" id="pm_created">—</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Purchase Modal -->
+  <div id="purchaseModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden">
+    <div class="mx-auto mt-5 w-[95%] max-w-5xl rounded-3xl border border-white/10 bg-gradient-to-b from-slate-900/95 to-slate-800/90 text-gray-100 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="relative px-6 pt-6 pb-4 border-b border-white/10 flex items-center justify-between">
+        <h3 class="text-2xl font-bold">شراء المنتج</h3>
+        <button id="purchase_close" class="text-gray-400 hover:text-gray-200 text-2xl leading-none">×</button>
+      </div>
+      <div class="p-8 flex-1 overflow-y-auto">
+        <!-- Product Header -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          <!-- Product Image -->
+          <div class="lg:col-span-1">
+            <div class="aspect-square rounded-2xl border border-white/10 bg-white/5 overflow-hidden">
+              <img id="purchase_image" alt="product" class="w-full h-full object-cover"/>
+              <div id="purchase_noimg" class="w-full h-full flex items-center justify-center text-gray-300 gap-2 hidden">
+                <span class="material-symbols-outlined text-4xl">image</span>
+                <span class="text-lg">لا توجد صورة</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Product Details -->
+          <div class="lg:col-span-2 space-y-6">
+            <div>
+              <h1 class="text-3xl font-bold text-white mb-2" id="purchase_name">—</h1>
+              <div class="flex items-center gap-4 mb-4">
+                <div class="text-2xl text-primary font-bold" id="purchase_price">—</div>
+                <div class="text-sm text-gray-400 bg-white/5 px-3 py-1 rounded-full">
+                  <span id="purchase_category">—</span> / <span id="purchase_subcategory">—</span>
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+              <h3 class="text-lg font-semibold mb-3 text-white">وصف المنتج</h3>
+              <div class="text-gray-300 whitespace-pre-wrap leading-relaxed" id="purchase_desc">—</div>
+            </div>
+
+          <div id="purchase_proof_wrap" class="bg-white/5 rounded-xl p-4 border border-white/10">
+            <h3 class="text-lg font-semibold mb-3 text-white">دلائل البائع</h3>
+            <div class="text-gray-300 whitespace-pre-wrap leading-relaxed" id="purchase_proof">—</div>
+          </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+                <h4 class="text-sm font-semibold text-gray-300 mb-2">معلومات البائع</h4>
+                <div class="flex items-center gap-3">
+                  <div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold" id="purchase_avatar">U</div>
+                  <div>
+                    <div class="font-medium text-white" id="purchase_seller">مستخدم</div>
+                    <div class="text-xs text-gray-400" id="purchase_code">رمز: —</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="bg-white/5 rounded-xl p-4 border border-white/10">
+                <h4 class="text-sm font-semibold text-gray-300 mb-2">طريقة التواصل</h4>
+                <div class="text-primary font-medium" id="purchase_contact">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Purchase Actions -->
+        <div class="space-y-6">
+          <div class="bg-gradient-to-r from-primary/10 to-purple-500/10 rounded-2xl p-6 border border-primary/20">
+            <h4 class="text-xl font-bold mb-4 text-white">خطوات الشراء</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">1</div>
+                <div class="text-gray-300">تواصل مع البائع عبر: <span id="contact_info" class="text-primary font-medium">—</span></div>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">2</div>
+                <div class="text-gray-300">تأكد من تفاصيل المنتج والسعر</div>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">3</div>
+                <div class="text-gray-300">اتفق مع البائع على طريقة الدفع والتسليم</div>
+              </div>
+              <div class="flex items-start gap-3">
+                <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white font-bold text-sm">4</div>
+                <div class="text-gray-300">أكمل عملية الشراء بأمان</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <button id="copy_contact" class="w-full px-6 py-4 rounded-xl bg-primary hover:bg-primary/90 text-white font-semibold transition-all duration-200 hover:scale-105 shadow-lg">
+              <span class="material-symbols-outlined text-xl mr-3">content_copy</span>
+              نسخ معلومات التواصل
+            </button>
+            <button id="contact_seller" class="w-full px-6 py-4 rounded-xl border-2 border-primary/50 hover:bg-primary/10 text-primary font-semibold transition-all duration-200 hover:scale-105">
+              <span class="material-symbols-outlined text-xl mr-3">message</span>
+              التواصل مع البائع
+            </button>
+            <button id="copy_link" class="w-full px-6 py-4 rounded-xl border-2 border-white/15 hover:bg-white/10 text-white/90 font-semibold transition-all duration-200 hover:scale-105">
+              <span class="material-symbols-outlined text-xl mr-3">share</span>
+              نسخ رابط المنتج
+            </button>
+          </div>
+          
+          <!-- Warning Banner -->
+          <div class="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border-2 border-yellow-500/30 rounded-2xl p-6">
+            <div class="flex items-start gap-4">
+              <span class="material-symbols-outlined text-yellow-400 text-3xl">warning</span>
+              <div class="text-yellow-100">
+                <div class="text-lg font-bold mb-2">تنبيه أمان مهم</div>
+                <div class="text-base leading-relaxed">
+                  تأكد من صحة البائع وموثوقيته قبل الدفع. لا تدفع أي مبلغ إلا بعد التأكد من المنتج ووصوله إليك. 
+                  احتفظ بسجل المحادثات والاتفاقيات مع البائع, اخلاء مسؤولية TradeHub.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  // Create animated grid background (same logic used in index)
+  (function createAnimatedBackground(){
+    try {
+      const container = document.getElementById('bgAnimation');
+      if (!container) return;
+      const gridSize = 50;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      container.innerHTML = '';
+      for (let i = 0; i < h; i += gridSize) {
+        const line = document.createElement('div');
+        line.className = 'grid-line horizontal';
+        line.style.top = i + 'px';
+        line.style.setProperty('--delay', (Math.random() * 3) + 's');
+        container.appendChild(line);
+      }
+      for (let i = 0; i < w; i += gridSize) {
+        const line = document.createElement('div');
+        line.className = 'grid-line vertical';
+        line.style.left = i + 'px';
+        line.style.setProperty('--delay', (Math.random() * 3) + 's');
+        container.appendChild(line);
+      }
+    } catch (_) {}
+  })();
+  window.addEventListener('resize', function(){
+    const container = document.getElementById('bgAnimation');
+    if (container) container.innerHTML = '';
+    const evt = new Event('recreate-bg');
+    (function create(){
+      const container = document.getElementById('bgAnimation');
+      if (!container) return;
+      const gridSize = 50;
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      for (let i = 0; i < h; i += gridSize) {
+        const line = document.createElement('div');
+        line.className = 'grid-line horizontal';
+        line.style.top = i + 'px';
+        line.style.setProperty('--delay', (Math.random() * 3) + 's');
+        container.appendChild(line);
+      }
+      for (let i = 0; i < w; i += gridSize) {
+        const line = document.createElement('div');
+        line.className = 'grid-line vertical';
+        line.style.left = i + 'px';
+        line.style.setProperty('--delay', (Math.random() * 3) + 's');
+        container.appendChild(line);
+      }
+    })();
+  });
+
+  // Floating particles for lively feel
+  (function createFloatingParticles(){
+    try {
+      const particleCount = 40;
+      for (let i = 0; i < particleCount; i++) {
+        const p = document.createElement('div');
+        p.style.cssText = 'position:fixed;width:3px;height:3px;border-radius:50%;background:rgba(99,102,241,0.55);pointer-events:none;z-index:-1;opacity:0.8;';
+        p.style.left = (Math.random()*100) + 'vw';
+        p.style.top = (Math.random()*100) + 'vh';
+        const d = 6 + Math.random()*6;
+        p.style.animation = `floatY ${d}s linear infinite`;
+        document.body.appendChild(p);
+      }
+      const style = document.createElement('style');
+      style.textContent = `@keyframes floatY{from{transform:translateY(20vh);opacity:.0}15%{opacity:.9}85%{opacity:.9}to{transform:translateY(-20vh);opacity:.0}}`;
+      document.head.appendChild(style);
+    } catch(_){}
+  })();
+
+  // Cursor reactive light spot
+  (function spot(){
+    const spot = document.getElementById('lightSpot');
+    if (!spot) return;
+    let raf = 0, targetX = window.innerWidth/2, targetY = window.innerHeight/2, x = targetX, y = targetY;
+    window.addEventListener('mousemove', function(e){ targetX = e.clientX; targetY = e.clientY; });
+    function animate(){
+      x += (targetX - x) * 0.08; y += (targetY - y) * 0.08;
+      spot.style.transform = 'translate(-50%, -50%)';
+      spot.style.left = x + 'px';
+      spot.style.top = y + 'px';
+      raf = requestAnimationFrame(animate);
+    }
+    animate();
+  })();
+
+  // ===== Market tabs and subcategories =====
+  (function marketTabs(){
+    const DATA = {
+      fortnite: {
+        title: 'فورتنايت',
+        subs: [
+          { key:'fort_accounts', title:'حسابات فورتنايت', img:'https://lh3.googleusercontent.com/aida-public/AB6AXuCBQWlnPdCi3k07GNC45TC1zlZy4WAzFA8n3emnt3JOxWrbwnrYCQbS4J8esxvmgLcbYp0N7TBjDHp_YPTyMOAdmzDg31McdPpIPvR7tG24qoi3ISuwvcmDTRgpJg66ylvtGIqE-mA-adRqbW042XFvW2PvRu4TSsvsobrh7GcqnSJhq8OMEeO8ibzY2z2K5zrqN_u-AShEuMamCyWIJl_yR4-F0G1vNTwqeM4iTLLbEVmhrgD_WjPcGDECI67JW7pmR8LAIAUqYMsg' },
+          { key:'fort_vbucks', title:'في-بوكس فورتنايت', img:'https://lh3.googleusercontent.com/aida-public/AB6AXuDR5-ovdadBdA3cmf40RcyV9X0mW44P-McNW05wtCGg3gHPqXik5nrN0QrGno-orOyEkymVjkSdR8Zv5KDUzk4XCSnO-8Tb_9eyYSGIq4eIQlNtwDoEUSkoxaVlUHT1BoiJt-QkVztUIxY5Yx6KymYpTVM0Ok7ABMkRLLXc6IJ2QxiuQ8BuMU5BRKHPpX1XYYUwvBNV3vb-ZQrySdfBzTyIQVBE_2_VIF3STGbunjBD2-L3dlUz62RTNBApTTIUwG4Akm-GMASUXKmw' },
+          { key:'fort_other', title:'أخرى', img:'https://lh3.googleusercontent.com/aida-public/AB6AXuBvfUVBY5d7dNJ5W_O8nJboq6SQ-eYHvVCX4JrOcrbFOrE1STAWQhfsSVIZG6adFCBqG71f4gtHplVvpcZlx5Qg5y0sg9B2s_i5LXjlSO_7L2C5dg97a8F7Z3ePEQuevrA_0wSNCyyAq2RF-AKvawwHEnBJr4qHdaAUfgQDVJ5GwPCGnqH2uUNuX-ER7rgpTDaHEwuuxGoMn6EQ0NX0SEQqC7Rn9GgVmUIPZcJ9oVy28FQNy830KLuauoB6zfhJoujT5VYSibZC23h-' }
+        ]
+      },
+      roblox: {
+        title: 'روبلوكس',
+        subs: [
+          { key:'rbx_robux', title:'روبوكس', img:'https://lh3.googleusercontent.com/aida-public/AB6AXuDR5-ovdadBdA3cmf40RcyV9X0mW44P-McNW05wtCGg3gHPqXik5nrN0QrGno-orOyEkymVjkSdR8Zv5KDUzk4XCSnO-8Tb_9eyYSGIq4eIQlNtwDoEUSkoxaVlUHT1BoiJt-QkVztUIxY5Yx6KymYpTVM0Ok7ABMkRLLXc6IJ2QxiuQ8BuMU5BRKHPpX1XYYUwvBNV3vb-ZQrySdfBzTyIQVBE_2_VIF3STGbunjBD2-L3dlUz62RTNBApTTIUwG4Akm-GMASUXKmw' },
+          { key:'rbx_accounts', title:'حسابات روبلوكس', img:'https://lh3.googleusercontent.com/aida-public/AB6AXuCBQWlnPdCi3k07GNC45TC1zlZy4WAzFA8n3emnt3JOxWrbwnrYCQbS4J8esxvmgLcbYp0N7TBjDHp_YPTyMOAdmzDg31McdPpIPvR7tG24qoi3ISuwvcmDTRgpJg66ylvtGIqE-mA-adRqbW042XFvW2PvRu4TSsvsobrh7GcqnSJhq8OMEeO8ibzY2z2K5zrqN_u-AShEuMamCyWIJl_yR4-F0G1vNTwqeM4iTLLbEVmhrgD_WjPcGDECI67JW7pmR8LAIAUqYMsg' },
+          { key:'rbx_items', title:'عناصر داخل المابات', img:'https://lh3.googleusercontent.com/aida-public/AB6AXuBG-OY1T0el-nk9PJ51aOiE2JchrF_rO-bWxVYtHQ7Ij5qBGOSGKdFuYgrosGaEJn2gFG-O3Cdxi6GwLScDwSW6I3LgczEi3qBTC63E4K6BWEQ-lpIdQ4Itex1rW8sWzeutTv7iUdXOY-Ytxb4cOkKsU4JLIHPWrU9JSEFlQsUJbzn8lupoLtSEgxdlvwXu4kzne26ZnkuPTLs_NsgQTuwalVy8LwzIDfl_xsHjxvOV8vtRJPsDZ1YOwqfycm-33rYWsV9uNhbHGogK' },
+          { key:'rbx_other', title:'أخرى', img:'https://lh3.googleusercontent.com/aida-public/AB6AXuBvfUVBY5d7dNJ5W_O8nJboq6SQ-eYHvVCX4JrOcrbFOrE1STAWQhfsSVIZG6adFCBqG71f4gtHplVvpcZlx5Qg5y0sg9B2s_i5LXjlSO_7L2C5dg97a8F7Z3ePEQuevrA_0wSNCyyAq2RF-AKvawwHEnBJr4qHdaAUfgQDVJ5GwPCGnqH2uUNuX-ER7rgpTDaHEwuuxGoMn6EQ0NX0SEQqC7Rn9GgVmUIPZcJ9oVy28FQNy830KLuauoB6zfhJoujT5VYSibZC23h-' }
+        ]
+      },
+      minecraft: { title: 'ماينكرافت', subs: [
+        { key:'mc_accounts', title:'حسابات ماينكرافت', img:'https://picsum.photos/seed/mc1/600/400' },
+        { key:'mc_mods', title:'مودات ماينكرافت', img:'https://picsum.photos/seed/mc2/600/400' },
+        { key:'mc_maps', title:'مابات ماين كرافت', img:'https://picsum.photos/seed/mc3/600/400' },
+        { key:'mc_other', title:'أخرى', img:'https://picsum.photos/seed/mc4/600/400' }
+      ] },
+      discord: { title: 'ديسكورد', subs: [
+        { key:'dc_servers', title:'سيرفرات ديسكورد', img:'https://picsum.photos/seed/dc1/600/400' },
+        { key:'dc_accounts', title:'حسابات ديسكورد', img:'https://picsum.photos/seed/dc2/600/400' },
+        { key:'dc_nitro', title:'نيترو', img:'https://picsum.photos/seed/dc3/600/400' },
+        { key:'dc_bots', title:'برمجة بوتات', img:'https://picsum.photos/seed/dc4/600/400' },
+        { key:'dc_other', title:'أخرى', img:'https://picsum.photos/seed/dc5/600/400' }
+      ] },
+      pc_tweaks: { title: 'تويكات الكمبيوتر', subs: [
+        { key:'tweak_speed', title:'تسريع الكمبيوتر', img:'https://picsum.photos/seed/tw1/600/400' },
+        { key:'tweak_fix', title:'اصلاح مشاكل النظام', img:'https://picsum.photos/seed/tw2/600/400' },
+        { key:'tweak_tools', title:'برامج مساعدة للتويكات', img:'https://picsum.photos/seed/tw3/600/400' },
+        { key:'tweak_gaming', title:'اعدادات وادوات خاصة باللعب على البيسي', img:'https://picsum.photos/seed/tw4/600/400' },
+        { key:'tweak_other', title:'أخرى', img:'https://picsum.photos/seed/tw5/600/400' }
+      ] },
+      pc_games: { title: 'ألعاب الكمبيوتر', subs: [
+        { key:'acc_steam', title:'حسابات ستيم داخلها العاب معينه', img:'https://picsum.photos/seed/pc1/600/400' },
+        { key:'acc_epic', title:'حسابات epic games داخلها العاب معينه', img:'https://picsum.photos/seed/pc2/600/400' },
+        { key:'acc_xbox', title:'حسابات xbox', img:'https://picsum.photos/seed/pc3/600/400' },
+        { key:'pc_other', title:'أخرى', img:'https://picsum.photos/seed/pc4/600/400' }
+      ] },
+      overwatch: { title: 'أوفرواتش', subs: [
+        { key:'ow_coins', title:'كوينز', img:'https://picsum.photos/seed/ow1/600/400' },
+        { key:'ow_accounts', title:'حسابات', img:'https://picsum.photos/seed/ow2/600/400' },
+        { key:'ow_other', title:'أخرى', img:'https://picsum.photos/seed/ow3/600/400' }
+      ] },
+      rocket_league: { title: 'روكيت ليق', subs: [
+        { key:'rl_rank', title:'رفع الرانك والتايتلات', img:'https://picsum.photos/seed/rl1/600/400' },
+        { key:'rl_accounts', title:'حسابات روكت ليق', img:'https://picsum.photos/seed/rl2/600/400' },
+        { key:'rl_other', title:'أخرى', img:'https://picsum.photos/seed/rl3/600/400' }
+      ] },
+      usernames: { title: 'يوزرات', subs: [
+        { key:'usernames_game', title:'يوزرات الألعاب', img:'https://picsum.photos/seed/us1/600/400' },
+        { key:'usernames_social', title:'يوزرات السوشيال', img:'https://picsum.photos/seed/us2/600/400' },
+        { key:'usernames_other', title:'أخرى', img:'https://picsum.photos/seed/us3/600/400' }
+      ] },
+      other: { title: 'أخرى', subs: [] }
+    };
+
+    function render(cat){
+      try {
+        const cfg = DATA[cat] || DATA.fortnite;
+        // expose current state globally for other modules (sell modal)
+        try { window.__currentCatId = cat; window.__currentSubTitle = ''; } catch(_) {}
+        const title = document.getElementById('categoryTitle');
+        const grid = document.getElementById('subcategoriesGrid');
+        if (title) title.textContent = cfg.title;
+        if (grid) {
+          grid.innerHTML = '';
+          if (!cfg.subs || cfg.subs.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'text-gray-500 dark:text-gray-400 col-span-full text-center py-8';
+            empty.textContent = 'لا توجد أقسام فرعية هنا حالياً تعرض المنتجات هنا فورا';
+            grid.appendChild(empty);
+            // continue to update active tab styling below
+          }
+          cfg.subs.forEach(s => {
+            const card = document.createElement('a');
+            card.href = `?cat=${encodeURIComponent(cat)}&sub=${encodeURIComponent(s.key)}`;
+            card.className = 'category-card group block';
+            card.setAttribute('data-subkey', s.key);
+            card.innerHTML = `
+              <div class="aspect-w-1 aspect-h-1 w-full overflow-hidden">
+                <div class="h-full w-full bg-cover bg-center transition-transform duration-500 group-hover:scale-110" style="background-image:url('${s.img}');"></div>
+              </div>
+              <div class="p-4">
+                <h4 class="text-lg font-semibold text-gray-800 dark:text-gray-100">${s.title}</h4>
+              </div>
+            `;
+            card.addEventListener('click', function(e){ e.preventDefault(); openSubcategory(cat, s.key); });
+            grid.appendChild(card);
+          });
+        }
+        // update active tab style
+        const tabs = document.querySelectorAll('#marketTabs a');
+        const base = 'whitespace-nowrap py-4 px-2 border-b-2 font-medium text-lg transition-colors';
+        const inactive = base + ' text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-200 hover:border-gray-300 dark:hover:border-gray-600';
+        const active = base + ' text-primary border-primary';
+        tabs.forEach(t => {
+          const isActive = (t.getAttribute('data-cat') === cat);
+          t.className = (isActive ? active : inactive);
+        });
+      } catch(_) {}
+    }
+
+    // Render inside a specific subcategory (hide buttons and show message)
+    async function openSubcategory(cat, subKey){
+      try {
+        const cfg = DATA[cat] || DATA.fortnite;
+        const grid = document.getElementById('subcategoriesGrid');
+        const title = document.getElementById('categoryTitle');
+        if (title) title.textContent = cfg.title;
+        if (!grid) return;
+        grid.innerHTML = '';
+        const selected = (cfg.subs || []).find(function(s){ return s.key === subKey; });
+        try { window.__currentCatId = cat; window.__currentSubTitle = selected ? selected.title : ''; } catch(_) {}
+        const msg = document.createElement('div');
+        msg.className = 'col-span-full rounded-xl border border-white/10 bg-white/5 p-6 text-center';
+        const subTitle = selected ? selected.title : subKey;
+        msg.innerHTML = '<div class="flex items-center justify-between mb-3">\n' +
+                        '  <div class="text-lg font-semibold">أنت الآن داخل القسم الفرعي: <span class="text-primary">' + (subTitle || '') + '</span></div>\n' +
+                        '  <button id="backToSubs" class="px-3 py-1.5 rounded-md border border-white/10 hover:bg-white/10 text-sm">رجوع للأقسام الفرعية</button>\n' +
+                        '</div>\n' +
+                        '<div class="text-gray-400">سيتم عرض المنتجات المخصصة لهذا القسم هنا.</div>';
+        grid.appendChild(msg);
+        // products grid
+        const listWrap = document.createElement('div');
+        listWrap.className = 'col-span-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6';
+        grid.appendChild(listWrap);
+        try {
+          const subTitleText = selected ? selected.title : '';
+          const catTitle = cfg.title;
+          const res = await fetch('/api/products?cat=' + encodeURIComponent(catTitle) + '&sub=' + encodeURIComponent(subTitleText));
+          const data = await res.json().catch(()=>({items:[]}));
+          const filtered = (data && data.items) ? data.items : [];
+          if (!filtered.length) {
+            const emptyMsg = document.createElement('div');
+            emptyMsg.className = 'col-span-full text-center text-gray-400';
+            emptyMsg.textContent = 'لا توجد منتجات بعد لهذا القسم.';
+            listWrap.appendChild(emptyMsg);
+          } else {
+            const paramsForAutoOpen = new URLSearchParams(location.search);
+            const wantedId = paramsForAutoOpen.get('product');
+            const wantedName = paramsForAutoOpen.get('pname');
+            let toOpenProduct = null;
+
+            filtered.forEach(function(p){
+              const card = document.createElement('div');
+              card.className = 'rounded-2xl overflow-hidden border border-white/10 bg-white/5 shadow-lg backdrop-blur-sm hover:-translate-y-1 transition';
+
+              const hasImg = !!(p.image && p.image.trim());
+              const initials = (p.sellerName || '').split(/\s+/).map(function(s){return s.charAt(0);}).join('').slice(0,2).toUpperCase();
+              const media = hasImg
+                ? ('<img src="' + p.image + '" alt="product" class="w-full h-44 object-cover"/>')
+                : ('<div class="w-full h-44 bg-gradient-to-br from-slate-800/70 to-slate-700/60 flex items-center justify-center">\n                      <div class="flex items-center gap-2 text-gray-300">\n                        <span class="material-symbols-outlined"> image </span>\n                        <span class="text-sm">لا توجد صورة</span>\n                      </div>\n                   </div>');
+
+              const seller = '<div class="flex items-center gap-2 text-xs text-gray-300">\n                                <div class="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">' + (initials || 'U') + '</div>\n                                <div>\n                                  <div class="leading-4">' + (p.sellerName || 'مستخدم') + '</div>\n                                  <div class="leading-4 text-[11px] text-gray-400">' + (p.sellerCode ? ('رمز: ' + p.sellerCode) : '') + '</div>\n                                </div>\n                              </div>';
+
+              let actions = '';
+              if (p.canDelete) {
+                actions = '<button data-del="' + p.id + '" class="text-xs px-2 py-1 rounded-md bg-red-500 hover:bg-red-600 text-white" onclick="event.stopPropagation()">حذف</button>';
+              }
+              
+              card.innerHTML = media + '\n                <div class="p-4 space-y-3">\n                  <div class="flex items-start justify-between gap-3">\n                    <div class="text-start font-semibold text-white/95">' + (p.name || '') + '</div>\n                    <div class="flex items-center gap-2">\n                      <div class="text-sm text-primary whitespace-nowrap">' + (p.priceLabel || '') + '</div>' + actions + '\n                    </div>\n                  </div>\n                  <div class="text-sm text-gray-300 line-clamp-3">' + (p.desc || '') + '</div>\n                  <div class="flex items-center justify-between">\n                    ' + seller + '\n                    <div class="text-xs text-gray-400">تواصل: ' + (p.contact || '-') + '</div>\n                  </div>\n                </div>';
+              listWrap.appendChild(card);
+              // delete handler
+              const delBtn = card.querySelector('[data-del]');
+              if (delBtn) {
+                delBtn.addEventListener('click', async function(){
+                  if (!confirm('هل تريد حذف هذا المنتج؟')) return;
+                  try {
+                    const id = this.getAttribute('data-del');
+                    const r = await fetch('/api/products/' + encodeURIComponent(id), { method: 'DELETE' });
+                    const dj = await r.json().catch(()=>({}));
+                    if (dj && dj.ok) { openSubcategory(cat, (selected ? selected.key : '')); }
+                  } catch(_) {}
+                });
+              }
+              // Make entire card clickable for purchase
+              card.style.cursor = 'pointer';
+              card.addEventListener('click', async function(e){
+                // Don't trigger if clicking delete button
+                if (e.target.closest('[data-del]')) return;
+                
+                try {
+                  const r = await fetch('/api/products/' + encodeURIComponent(p.id));
+                  const dj = await r.json().catch(()=>({}));
+                  if (!dj || !dj.ok) {
+                    openPurchaseModal(p);
+                    return;
+                  }
+                  // دمج بيانات القائمة كنسخة احتياطية في حال لم يرجع الـ API بعض الحقول مثل proof
+                  const it = Object.assign({}, p || {}, dj.item || {});
+                  openPurchaseModal(it);
+                } catch(_) {}
+              });
+
+              // Prepare candidate for auto-open by id or name
+              if (!toOpenProduct) {
+                if (wantedId && p.id && String(p.id) === String(wantedId)) {
+                  toOpenProduct = p;
+                } else if (!wantedId && wantedName && p.name && p.name.trim() === wantedName.trim()) {
+                  toOpenProduct = p;
+                }
+              }
+            });
+
+            // After rendering, auto-open if a matching product was found
+            if (toOpenProduct) {
+              try { openPurchaseModal(toOpenProduct); } catch(_) {}
+            }
+          }
+        } catch(_) {}
+        const url = `?cat=${encodeURIComponent(cat)}&sub=${encodeURIComponent(subKey)}`;
+        history.replaceState({}, document.title, url);
+        try {
+          const backBtn = document.getElementById('backToSubs');
+          if (backBtn) backBtn.addEventListener('click', function(){
+            render(cat);
+            history.replaceState({}, document.title, `?cat=${encodeURIComponent(cat)}`);
+          });
+        } catch(_) {}
+      } catch(_) {}
+    }
+
+    // attach tab handlers
+    try {
+      const tabs = document.querySelectorAll('#marketTabs a');
+      tabs.forEach(t => t.addEventListener('click', function(e){
+        e.preventDefault();
+        const cat = this.getAttribute('data-cat');
+        render(cat);
+        try { history.replaceState({}, document.title, `?cat=${encodeURIComponent(cat)}`); } catch(_) {}
+      }));
+    } catch(_) {}
+
+    // initial render with URL params support
+    (function initFromURL(){
+      try {
+        const params = new URLSearchParams(location.search);
+        const productId = params.get('product');
+        const productName = params.get('pname');
+        if (productId) {
+          // If product param exists, try fetching and opening directly
+          (async function(){
+            try {
+              const r = await fetch('/api/products/' + encodeURIComponent(productId));
+              const dj = await r.json().catch(()=>({}));
+              if (dj && dj.ok && dj.item) {
+                openPurchaseModal(dj.item);
+                return;
+              }
+            } catch(_) {}
+          })();
+        }
+        // If name provided without id, wait until subcategory renders and it will auto-open via list logic
+        const catParam = params.get('cat');
+        const subParam = params.get('sub');
+        const validCat = (catParam && (catParam in DATA)) ? catParam : 'fortnite';
+        if (subParam) { openSubcategory(validCat, subParam); } else { render(validCat); }
+      } catch(_) { render('fortnite'); }
+    })();
+  })();
+
+  // ===== User menu & auth actions =====
+  (function userMenu(){
+    const btn = document.getElementById('userMenuBtn');
+    const dd = document.getElementById('userDropdown');
+    const emailSpan = document.getElementById('userEmail');
+    const settingsModal = document.getElementById('accountSettingsModal');
+    const openSettings = document.getElementById('openSettings');
+    const closeSettings = document.getElementById('closeSettings');
+    const settingsCloseBtn = document.getElementById('settingsCloseBtn');
+    const settingsLogout = document.getElementById('settingsLogout');
+    const logoutLink = document.getElementById('logoutLink');
+    const nameInput = document.getElementById('nameInput');
+    const emailInput = document.getElementById('emailInput');
+    const nameEditBtn = document.getElementById('nameEditBtn');
+    const emailEditBtn = document.getElementById('emailEditBtn');
+    const nameHint = document.getElementById('nameHint');
+    const emailHint = document.getElementById('emailHint');
+
+    function toggle(open){ if (!dd) return; dd.classList[open?'remove':'add']('hidden'); }
+    if (btn) btn.addEventListener('click', function(e){ e.stopPropagation(); toggle(dd.classList.contains('hidden')); });
+    document.addEventListener('click', function(e){ if (dd && !e.target.closest('#userMenu')) dd.classList.add('hidden'); });
+
+    async function refreshMe(){
+      try {
+        const r = await fetch('/api/me', { cache:'no-store' });
+        if (r.ok) {
+          const d = await r.json();
+          if (d && d.ok && emailSpan) { emailSpan.textContent = d.email || 'حسابي'; }
+          if (nameInput) nameInput.value = (d && d.name) ? d.name : '';
+          if (emailInput) emailInput.value = (d && d.email) ? d.email : '';
+          // enforce one-time edit UI states
+          const nameLocked = d && d.name_changed;
+          const emailLocked = d && d.email_changed;
+          if (nameInput) nameInput.disabled = !!nameLocked;
+          if (nameEditBtn) nameEditBtn.disabled = !!nameLocked;
+          if (nameHint) nameHint.textContent = nameLocked ? 'تم تعديل الاسم مسبقاً ولا يمكن تغييره مرة أخرى.' : 'يمكنك تعديل الاسم مرة واحدة فقط.';
+          if (emailInput) emailInput.disabled = !!emailLocked;
+          if (emailEditBtn) emailEditBtn.disabled = !!emailLocked;
+          if (emailHint) emailHint.textContent = emailLocked ? 'تم تعديل البريد مسبقاً ولا يمكن تغييره مرة أخرى.' : 'يمكنك تعديل البريد مرة واحدة فقط.';
+        }
+      } catch(_) {}
+    }
+    refreshMe();
+
+    function openSettingsModal(){ if (settingsModal){ settingsModal.classList.remove('hidden'); toggle(false); } }
+    function closeSettingsModal(){ if (settingsModal){ settingsModal.classList.add('hidden'); } }
+    if (openSettings) openSettings.addEventListener('click', function(e){ e.preventDefault(); openSettingsModal(); });
+    if (closeSettings) closeSettings.addEventListener('click', function(){ closeSettingsModal(); });
+    if (settingsCloseBtn) settingsCloseBtn.addEventListener('click', function(){ closeSettingsModal(); });
+
+    async function doLogout(){
+      try { await fetch('/api/logout', { method:'POST' }); } catch(_) {}
+      window.location.href = 'index.html';
+    }
+    if (settingsLogout) settingsLogout.addEventListener('click', doLogout);
+    if (logoutLink) logoutLink.addEventListener('click', function(e){ e.preventDefault(); doLogout(); });
+
+    async function updateField(field, value){
+      try {
+        const res = await fetch('/api/update_profile', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ field, value }) });
+        const data = await res.json().catch(()=>({}));
+        if (!res.ok || !data.ok) return alert(data && data.error ? data.error : 'حدث خطأ، حاول لاحقاً');
+        await refreshMe();
+      } catch(_) { alert('حدث خطأ، حاول لاحقاً'); }
+    }
+    if (nameEditBtn) nameEditBtn.addEventListener('click', function(){ if (!this.disabled) updateField('name', (nameInput && nameInput.value || '').trim()); });
+    // Replace direct email edit with verified flow below
+
+    // ===== Verified Email Change Flow (EmailJS + backend) =====
+    const startEmailChange = document.getElementById('startEmailChange');
+    const emailChangePanel = document.getElementById('emailChangePanel');
+    const newEmailInput = document.getElementById('newEmailInput');
+    const sendEmailCode = document.getElementById('sendEmailCode');
+    const sendStatus = document.getElementById('sendStatus');
+    const emailCodeInput = document.getElementById('emailCodeInput');
+    const confirmEmailChange = document.getElementById('confirmEmailChange');
+    const cancelEmailChange = document.getElementById('cancelEmailChange');
+    const emailCurrent = document.getElementById('emailCurrent');
+    const codeDisplay = document.getElementById('codeDisplay');
+
+    try {
+      fetch('/api/me').then(r=>r.json()).then(d=>{
+        if (d && d.ok) {
+          if (emailCurrent) emailCurrent.textContent = d.email || '—';
+          if (codeDisplay) codeDisplay.textContent = d.code || '—';
+        }
+      });
+    } catch(_){}
+
+    function toggleEmailPanel(open){ if (!emailChangePanel) return; emailChangePanel.classList[open?'remove':'add']('hidden'); }
+    if (startEmailChange) startEmailChange.addEventListener('click', function(){ toggleEmailPanel(true); });
+    if (cancelEmailChange) cancelEmailChange.addEventListener('click', function(){ toggleEmailPanel(false); });
+
+    function genCode(){ return ('' + Math.floor(100000 + Math.random()*900000)); }
+    let pendingCode = '';
+    let canResendAt = 0;
+    const EMAILJS_PUBLIC_KEY = 'LySKQkp2abAPMNWwZ';
+    const EMAILJS_SERVICE_ID = 'service_6whal94';
+    const EMAILJS_TEMPLATE_ID = 'template_o9ja8nh';
+    try { if (window.emailjs && EMAILJS_PUBLIC_KEY) emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); } catch(_){ }
+
+    async function requestEmailChange() {
+      const newEmail = (newEmailInput && newEmailInput.value || '').trim();
+      if (!newEmail) { alert('أدخل البريد الجديد.'); return false; }
+      pendingCode = genCode();
+      // 1) Send via EmailJS (frontend)
+      try {
+        if (window.emailjs && EMAILJS_PUBLIC_KEY && EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID) {
+          await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, { to_email: newEmail, to_name: 'مستخدم', code: pendingCode });
+        }
+      } catch(_){ /* ignore dev env */ }
+      // 2) Register request with backend for verification
+      const res = await fetch('/api/request_email_change', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ new_email: newEmail, code: pendingCode }) });
+      const data = await res.json().catch(()=>({}));
+      if (!res.ok || !data.ok) { alert(data && data.error ? data.error : 'تعذر بدء تغيير البريد'); return false; }
+      return true;
+    }
+
+    if (sendEmailCode) sendEmailCode.addEventListener('click', async function(){
+      const now = Date.now();
+      if (now < canResendAt) {
+        const s = Math.ceil((canResendAt - now)/1000);
+        if (sendStatus) { sendStatus.textContent = `انتظر ${s}s`; setTimeout(()=>{ if(sendStatus) sendStatus.textContent=''; }, 1000); }
+        return;
+      }
+      if (await requestEmailChange()) {
+        canResendAt = Date.now() + 60000;
+        if (sendStatus) { sendStatus.textContent = 'تم إرسال الكود ✓'; setTimeout(()=>{ if(sendStatus) sendStatus.textContent=''; }, 1500); }
+      }
+    });
+
+    if (confirmEmailChange) confirmEmailChange.addEventListener('click', async function(){
+      const newEmail = (newEmailInput && newEmailInput.value || '').trim();
+      const code = (emailCodeInput && emailCodeInput.value || '').trim();
+      if (!newEmail || !code || code.length !== 6) { alert('أدخل البريد والكود المكون من 6 أرقام.'); return; }
+      const res = await fetch('/api/confirm_email_change', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ new_email: newEmail, code }) });
+      const data = await res.json().catch(()=>({}));
+      if (!res.ok || !data.ok) { alert(data && data.error ? data.error : 'تعذر تأكيد التغيير'); return; }
+      if (emailCurrent) emailCurrent.textContent = newEmail;
+      toggleEmailPanel(false);
+      await refreshMe();
+      alert('تم تحديث البريد بنجاح!');
+    });
+  })();
+
+  // ===== Sell digital product (CTA) =====
+  (function sellCTA(){
+    try {
+      const link = document.getElementById('sellDigitalLink');
+      const modal = document.getElementById('sellModal');
+      const closeBtn = document.getElementById('sellClose');
+      const cancelBtn = document.getElementById('sellCancel');
+      const saveFake = document.getElementById('sellSaveFake');
+      const prodCat = document.getElementById('prodCat');
+      const subWrap = document.getElementById('subCatWrap');
+      const prodSubCat = document.getElementById('prodSubCat');
+      const imageDrop = document.getElementById('imageDrop');
+      const imageInput = document.getElementById('imageInput');
+      const imagePreview = document.getElementById('imagePreview');
+      const imagePreviewImg = document.getElementById('imagePreviewImg');
+      const paymentMethod = document.getElementById('paymentMethod');
+      const paymentDetails = document.getElementById('paymentDetails');
+
+      function open(){ if(modal){ modal.classList.remove('hidden'); } }
+      function close(){ if(modal){ modal.classList.add('hidden'); } }
+
+      if (link) link.addEventListener('click', function(e){ e.preventDefault(); open(); });
+      if (closeBtn) closeBtn.addEventListener('click', close);
+      if (cancelBtn) cancelBtn.addEventListener('click', close);
+      if (modal) modal.addEventListener('click', function(e){ if (e.target === modal) close(); });
+      if (saveFake) saveFake.addEventListener('click', function(){ close(); });
+
+      // Dynamic subcategory options based on main category
+      const SUB_OPTIONS = {
+        'فورتنايت': ['حسابات فورتنايت','في-بوكس فورتنايت','أخرى'],
+        'روبلوكس': ['روبوكس','حسابات روبلوكس','عناصر داخل المابات','أخرى'],
+        'ماينكرافت': ['حسابات ماينكرافت','مودات ماينكرافت','مابات ماين كرافت','أخرى'],
+        'ديسكورد': ['سيرفرات ديسكورد','حسابات ديسكورد','نيترو','برمجة بوتات','أخرى'],
+        'تويكات الكمبيوتر': ['تسريع الكمبيوتر','اصلاح مشاكل النظام','برامج مساعدة للتويكات','اعدادات وادوات خاصة باللعب على البيسي','أخرى'],
+        'ألعاب الكمبيوتر': ['حسابات ستيم داخلها العاب معينه','حسابات epic games داخلها العاب معينه','حسابات xbox','أخرى'],
+        'أوفرواتش': ['كوينز','حسابات','أخرى'],
+        'روكيت ليق': ['رفع الرانك والتايتلات','حسابات روكت ليق','أخرى'],
+        'يوزرات': ['يوزرات الألعاب','يوزرات السوشيال','أخرى'],
+        'أخرى': []
+      };
+
+      function populateSubcats(mainCat){
+        if (!prodSubCat || !subWrap) return;
+        const isOther = mainCat === 'أخرى';
+        subWrap.style.display = isOther ? 'none' : 'block';
+        prodSubCat.innerHTML = '<option value="">اختر القسم الفرعي</option>';
+        const list = SUB_OPTIONS[mainCat] || [];
+        list.forEach(function(v){
+          const opt = document.createElement('option');
+          opt.value = v; opt.textContent = v; prodSubCat.appendChild(opt);
+        });
+      }
+
+      if (prodCat) {
+        populateSubcats(prodCat.value);
+        prodCat.addEventListener('change', function(){ populateSubcats(this.value); });
+      }
+
+      // Render dynamic payment details fields based on selected method
+      function renderPaymentDetails(method){
+        if (!paymentDetails) return;
+        paymentDetails.innerHTML = '';
+        if (method === 'bank') {
+          paymentDetails.innerHTML = `
+            <div>
+              <label class="block text-sm text-gray-300 mb-1">السعر</label>
+              <div class="flex gap-2">
+                <input id="prodPrice" type="number" min="0" class="flex-1 rounded-xl bg-slate-800/60 border border-white/10 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/60" placeholder="0"/>
+                <select id="priceCurrency" class="rounded-xl bg-slate-800/60 border border-white/10 px-3 py-2 text-sm">
+                  <option>ر.س</option>
+                  <option>USD</option>
+                </select>
+              </div>
+              <p class="text-xs text-gray-400 mt-1">مثال: ر.س 150 - تحويل لحساب بنكي.</p>
+            </div>`;
+        } else if (method === 'digital') {
+          paymentDetails.innerHTML = `
+            <div>
+              <label class="block text-sm text-gray-300 mb-1">المنصة الرقمية</label>
+              <select id="digitalPlatform" class="w-full rounded-xl bg-slate-800/60 border border-white/10 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/60">
+                <option value="stc">بطاقة STC / رصيد</option>
+                <option value="paypal">PayPal</option>
+                <option value="crypto">Crypto</option>
+                <option value="gift">بطاقة هدايا</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-300 mb-1">القيمة المطلوبة</label>
+              <input id="digitalAmount" type="number" min="0" class="w-full rounded-xl bg-slate-800/60 border border-white/10 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/60" placeholder="مثل: 25"/>
+              <p class="text-xs text-gray-400 mt-1">مثال: بطاقة هدايا بقيمة 25$.</p>
+            </div>`;
+        } else if (method === 'ingame') {
+          paymentDetails.innerHTML = `
+            <div>
+              <label class="block text-sm text-gray-300 mb-1">اللعبة</label>
+              <input id="gameName" class="w-full rounded-xl bg-slate-800/60 border border-white/10 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/60" placeholder="مثل: روبلوكس / فورتنايت"/>
+            </div>
+            <div>
+              <label class="block text-sm text-gray-300 mb-1">العملة/العنصر المطلوب</label>
+              <input id="gameItem" class="w-full rounded-xl bg-slate-800/60 border border-white/10 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/60" placeholder="مثل: Robux 500 / V-Bucks 1000"/>
+              <p class="text-xs text-gray-400 mt-1">مثال: 500 Robux مقابل المنتج.</p>
+            </div>`;
+        } else if (method === 'barter') {
+          paymentDetails.innerHTML = `
+            <div>
+              <label class="block text-sm text-gray-300 mb-1">ما الذي ترغب بمقايضته؟</label>
+              <input id="barterWhat" class="w-full rounded-xl bg-slate-800/60 border border-white/10 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/60" placeholder="وصف مختصر للشيء المطلوب بالمقايضة"/>
+              <p class="text-xs text-gray-400 mt-1">مثال: مقايضة بحساب لعبة أو خدمة معينة.</p>
+            </div>`;
+        }
+      }
+
+      if (paymentMethod) {
+        renderPaymentDetails(paymentMethod.value || '');
+        paymentMethod.addEventListener('change', function(){ renderPaymentDetails(this.value); });
+      }
+
+      // Image picker
+      function handleFiles(files){
+        const f = files && files[0];
+        if (!f) return;
+        const url = URL.createObjectURL(f);
+        if (imagePreview && imagePreviewImg) {
+          imagePreviewImg.src = url;
+          imagePreview.classList.remove('hidden');
+        }
+        if (imageDrop) { imageDrop.classList.add('hidden'); }
+      }
+      if (imageDrop && imageInput) {
+        imageDrop.addEventListener('click', function(){ imageInput.click(); });
+        imageDrop.addEventListener('dragover', function(e){ e.preventDefault(); imageDrop.classList.add('border-primary/50'); });
+        imageDrop.addEventListener('dragleave', function(){ imageDrop.classList.remove('border-primary/50'); });
+        imageDrop.addEventListener('drop', function(e){ e.preventDefault(); imageDrop.classList.remove('border-primary/50'); handleFiles(e.dataTransfer.files); });
+        imageInput.addEventListener('change', function(){ handleFiles(this.files); });
+        if (imagePreview) { imagePreview.addEventListener('click', function(){ imageInput.click(); }); }
+      }
+
+      // Save product (design demo): persist to localStorage and render in selected cat/sub
+      const saveBtn = document.getElementById('sellSaveFake');
+      if (saveBtn) saveBtn.addEventListener('click', async function(){ try {
+        const name = (document.getElementById('prodName') && document.getElementById('prodName').value || '').trim();
+        const catTitle = prodCat ? prodCat.value : '';
+        const subTitle = prodSubCat ? prodSubCat.value : '';
+        const desc = (document.getElementById('prodDesc') && document.getElementById('prodDesc').value || '').trim();
+        const contact = (document.getElementById('contactMethod') && document.getElementById('contactMethod').value || '').trim();
+        let priceLabel = '';
+        const pm = paymentMethod ? paymentMethod.value : '';
+        if (pm === 'bank') {
+          const amount = (document.getElementById('prodPrice') && document.getElementById('prodPrice').value) || '';
+          const cur = (document.getElementById('priceCurrency') && document.getElementById('priceCurrency').value) || '';
+          priceLabel = amount ? (amount + ' ' + cur) : '';
+        } else if (pm === 'digital') {
+          const plat = (document.getElementById('digitalPlatform') && document.getElementById('digitalPlatform').value) || '';
+          const val = (document.getElementById('digitalAmount') && document.getElementById('digitalAmount').value) || '';
+          priceLabel = plat && val ? (plat + ' ' + val) : plat || val;
+        } else if (pm === 'ingame') {
+          const g = (document.getElementById('gameName') && document.getElementById('gameName').value) || '';
+          const it = (document.getElementById('gameItem') && document.getElementById('gameItem').value) || '';
+          priceLabel = g && it ? (g + ' - ' + it) : g || it;
+        } else if (pm === 'barter') {
+          priceLabel = (document.getElementById('barterWhat') && document.getElementById('barterWhat').value) || 'مقايضة';
+        }
+        const img = (document.getElementById('imagePreviewImg') && document.getElementById('imagePreviewImg').src) || '';
+        // seller info (demo): grab from /api/me or fallback to currentUser/local storage
+        let sellerName = 'مستخدم';
+        let sellerCode = '';
+        try {
+          const me = await fetch('/api/me').then(r=>r.json()).catch(()=>null);
+          if (me && me.ok) { sellerName = me.name || (me.email || '').split('@')[0] || 'مستخدم'; sellerCode = me.code || ''; }
+          else {
+            const u = JSON.parse(localStorage.getItem('currentUser')||'{}');
+            if (u && (u.displayName||u.email)) sellerName = u.displayName || (u.email||'').split('@')[0] || 'مستخدم';
+          }
+        } catch(_) {}
+        const proof = (document.getElementById('proofDetails') && document.getElementById('proofDetails').value || '').trim();
+        const record = { name, catTitle, subTitle, desc, contact, priceLabel, image: img, sellerName, sellerCode, proof };
+        try {
+          await fetch('/api/products', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(record) });
+        } catch(_){ }
+        close();
+        // if current view matches, re-render list in place
+        if (window.__currentCatId === getCatIdByTitle(catTitle)) {
+          if (window.__currentSubTitle && window.__currentSubTitle === subTitle) {
+            openSubcategory(window.__currentCatId, getSubKeyByTitle(window.__currentCatId, subTitle));
+          }
+        }
+      } catch(_) { close(); } });
+
+      function getCatIdByTitle(title){
+        try {
+          for (const k in DATA) { if (DATA[k].title === title) return k; }
+        } catch(_) {}
+        return '';
+      }
+      function getSubKeyByTitle(catId, subTitle){
+        try {
+          const subs = (DATA[catId] && DATA[catId].subs) || [];
+          const found = subs.find(function(s){ return s.title === subTitle; });
+          return found ? found.key : '';
+        } catch(_) { return ''; }
+      }
+    } catch(_){}
+  })();
+
+  // Product modal close handlers
+  (function productModal(){
+    try {
+      const modal = document.getElementById('productModal');
+      const closeBtn = document.getElementById('pm_close');
+      if (closeBtn) closeBtn.addEventListener('click', function(){ if (modal) modal.classList.add('hidden'); });
+      if (modal) modal.addEventListener('click', function(e){ if (e.target === modal) modal.classList.add('hidden'); });
+    } catch(_) {}
+  })();
+
+  // Purchase modal functions
+  function openPurchaseModal(product) {
+    try {
+      const modal = document.getElementById('purchaseModal');
+      if (!modal) return;
+      
+      // Fill product info
+      const nameEl = document.getElementById('purchase_name');
+      const priceEl = document.getElementById('purchase_price');
+      const descEl = document.getElementById('purchase_desc');
+      const sellerEl = document.getElementById('purchase_seller');
+      const codeEl = document.getElementById('purchase_code');
+      const contactEl = document.getElementById('purchase_contact');
+      const contactInfoEl = document.getElementById('contact_info');
+      const avatarEl = document.getElementById('purchase_avatar');
+      const categoryEl = document.getElementById('purchase_category');
+      const subcategoryEl = document.getElementById('purchase_subcategory');
+      const imageEl = document.getElementById('purchase_image');
+      const noImageEl = document.getElementById('purchase_noimg');
+      
+      if (nameEl) nameEl.textContent = product.name || '—';
+      if (priceEl) priceEl.textContent = product.priceLabel || '—';
+      if (descEl) descEl.textContent = product.desc || '—';
+      if (sellerEl) sellerEl.textContent = product.sellerName || 'مستخدم';
+      if (codeEl) codeEl.textContent = 'رمز: ' + (product.sellerCode || '—');
+      if (contactEl) contactEl.textContent = product.contact || '—';
+      if (contactInfoEl) contactInfoEl.textContent = product.contact || '—';
+      if (categoryEl) categoryEl.textContent = product.catTitle || '—';
+      if (subcategoryEl) subcategoryEl.textContent = product.subTitle || '—';
+      const proofEl = document.getElementById('purchase_proof');
+      const proofWrap = document.getElementById('purchase_proof_wrap');
+      if (proofEl) {
+        const proofText = (product.proof || '').trim();
+        proofEl.textContent = proofText || '—';
+        if (proofWrap) {
+          proofWrap.classList[proofText ? 'remove' : 'add']('hidden');
+        }
+      }
+      
+      // Handle product image
+      if (product.image && product.image.trim()) {
+        if (imageEl) {
+          imageEl.src = product.image;
+          imageEl.classList.remove('hidden');
+        }
+        if (noImageEl) noImageEl.classList.add('hidden');
+      } else {
+        if (imageEl) imageEl.classList.add('hidden');
+        if (noImageEl) noImageEl.classList.remove('hidden');
+      }
+      
+      // Set avatar initials
+      if (avatarEl) {
+        const initials = (product.sellerName || 'U').split(/\s+/).map(s => s.charAt(0)).join('').slice(0,2).toUpperCase();
+        avatarEl.textContent = initials || 'U';
+      }
+      
+      // Update URL with direct product link (?product=ID)
+      try {
+        if (product && product.id) {
+          const params = new URLSearchParams(location.search);
+          params.set('product', product.id);
+          history.replaceState({}, document.title, `?${params.toString()}`);
+        }
+      } catch(_) {}
+
+      modal.classList.remove('hidden');
+    } catch(_) {}
+  }
+
+  // Purchase modal handlers
+  (function purchaseModal(){
+    try {
+      const modal = document.getElementById('purchaseModal');
+      const closeBtn = document.getElementById('purchase_close');
+      const copyBtn = document.getElementById('copy_contact');
+      const contactBtn = document.getElementById('contact_seller');
+      const copyLinkBtn = document.getElementById('copy_link');
+      
+      function closeModal(){
+        if (!modal) return;
+        modal.classList.add('hidden');
+        // Remove product param when closing
+        try {
+          const params = new URLSearchParams(location.search);
+          params.delete('product');
+          history.replaceState({}, document.title, `${location.pathname}${params.toString() ? ('?' + params.toString()) : ''}`);
+        } catch(_) {}
+      }
+      if (closeBtn) closeBtn.addEventListener('click', closeModal);
+      if (modal) modal.addEventListener('click', function(e){ if (e.target === modal) closeModal(); });
+      
+      if (copyBtn) {
+        copyBtn.addEventListener('click', function(){
+          try {
+            const contactInfo = document.getElementById('contact_info');
+            const contactText = contactInfo ? contactInfo.textContent : '';
+            if (contactText && contactText !== '—') {
+              navigator.clipboard.writeText(contactText).then(() => {
+                // Show success feedback
+                const originalText = this.innerHTML;
+                this.innerHTML = '<span class="material-symbols-outlined text-base mr-2">check</span>تم النسخ!';
+                this.classList.add('bg-green-500', 'hover:bg-green-600');
+                this.classList.remove('bg-primary/80', 'hover:bg-primary');
+                setTimeout(() => {
+                  this.innerHTML = originalText;
+                  this.classList.remove('bg-green-500', 'hover:bg-green-600');
+                  this.classList.add('bg-primary/80', 'hover:bg-primary');
+                }, 2000);
+              }).catch(() => {
+                alert('تعذر نسخ النص. يرجى نسخه يدوياً: ' + contactText);
+              });
+            } else {
+              alert('لا توجد معلومات تواصل متاحة');
+            }
+          } catch(_) {
+            alert('حدث خطأ في نسخ معلومات التواصل');
+          }
+        });
+      }
+      
+      if (contactBtn) {
+        contactBtn.addEventListener('click', function(){
+          try {
+            const contactInfo = document.getElementById('contact_info');
+            const contactText = contactInfo ? contactInfo.textContent : '';
+            if (contactText && contactText !== '—') {
+              // Try to open contact method
+              if (contactText.includes('discord') || contactText.includes('Discord')) {
+                // Open Discord
+                window.open('https://discord.com', '_blank');
+              } else if (contactText.includes('telegram') || contactText.includes('t.me')) {
+                // Open Telegram
+                window.open('https://t.me', '_blank');
+              } else if (contactText.includes('@')) {
+                // Open email client
+                window.open('mailto:' + contactText, '_blank');
+              } else {
+                // Copy to clipboard as fallback
+                navigator.clipboard.writeText(contactText).then(() => {
+                  alert('تم نسخ معلومات التواصل: ' + contactText);
+                }).catch(() => {
+                  alert('معلومات التواصل: ' + contactText);
+                });
+              }
+            } else {
+              alert('لا توجد معلومات تواصل متاحة');
+            }
+          } catch(_) {
+            alert('حدث خطأ في التواصل مع البائع');
+          }
+        });
+      }
+
+      // Copy direct product link
+      if (copyLinkBtn) {
+        copyLinkBtn.addEventListener('click', function(){
+          try {
+            const params = new URLSearchParams(location.search);
+            const url = `${location.origin}${location.pathname}?${params.toString()}`;
+            navigator.clipboard.writeText(url).then(() => {
+              const original = this.innerHTML;
+              this.innerHTML = '<span class="material-symbols-outlined text-base mr-2">check</span>تم النسخ!';
+              setTimeout(()=>{ this.innerHTML = original; }, 2000);
+            });
+          } catch(_) {}
+        });
+      }
+    } catch(_) {}
+  })();
+</script>
+
+</body></html>

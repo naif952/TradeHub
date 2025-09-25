@@ -1,0 +1,16 @@
+[
+  {
+    "id": "BXwIHT21zlqJbHT5",
+    "name": "<script>alert('XSS')</script>",
+    "catTitle": "ديسكورد",
+    "subTitle": "نيترو",
+    "desc": "dsadas",
+    "contact": "ssasa",
+    "priceLabel": "11 ر.س",
+    "image": "",
+    "sellerName": "نايف",
+    "sellerCode": "bVtiekh",
+    "sellerEmail": "naif9595gmirx0731@gmail.com",
+    "created_at": 1758804130
+  }
+]
